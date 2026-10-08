@@ -58,6 +58,8 @@ GoogleService-Info.plist
 app.*.symbols
 app.*.map.json
 /android/app/debug
+.temp/
+supabase/.temp/
 /android/app/profile
 /android/app/release
 
