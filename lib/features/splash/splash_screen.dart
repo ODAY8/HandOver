@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../providers/auth_provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -35,7 +37,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     // Auto-advance after 2.5 seconds
     _timer = Timer(const Duration(milliseconds: 2500), () {
       if (mounted) {
-        context.go('/onboarding');
+        final isAuthenticated = context.read<AuthProvider>().isAuthenticated;
+        context.go(isAuthenticated ? '/home' : '/onboarding');
       }
     });
   }
@@ -52,7 +55,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     return Scaffold(
       backgroundColor: const Color(0xFF080E1A), // Deep navy background
       body: GestureDetector(
-        onTap: () => context.go('/onboarding'),
+        onTap: () {
+          final isAuthenticated = context.read<AuthProvider>().isAuthenticated;
+          context.go(isAuthenticated ? '/home' : '/onboarding');
+        },
         child: SafeArea(
           child: Stack(
             children: [

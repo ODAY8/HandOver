@@ -278,9 +278,11 @@ class ProfileScreen extends StatelessWidget {
                 text: 'Sign out',
                 icon: const Icon(Icons.logout_outlined, size: 18),
                 variant: ButtonVariant.secondary,
-                onPressed: () {
-                  auth.signOut();
-                  context.go('/auth');
+                onPressed: () async {
+                  await auth.signOut();
+                  if (context.mounted) {
+                    context.go('/auth');
+                  }
                 },
               ),
               const SizedBox(height: 24),
