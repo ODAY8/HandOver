@@ -10,6 +10,7 @@ import 'package:handover/features/handovers/details/handover_detail_screen.dart'
 import 'package:handover/features/profile/profile_screen.dart';
 import 'package:handover/providers/auth_provider.dart';
 import 'package:handover/providers/handover_provider.dart';
+import 'package:handover/providers/profile_provider.dart';
 import 'package:handover/providers/theme_provider.dart';
 
 Widget createTestApp(Widget child) {
@@ -17,6 +18,7 @@ Widget createTestApp(Widget child) {
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ChangeNotifierProvider(create: (_) => ProfileProvider()),
       ChangeNotifierProvider(create: (_) => HandoverProvider()),
     ],
     child: MaterialApp(

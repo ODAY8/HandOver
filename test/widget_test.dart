@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:handover/app/app.dart';
 import 'package:handover/providers/auth_provider.dart';
 import 'package:handover/providers/handover_provider.dart';
+import 'package:handover/providers/profile_provider.dart';
 import 'package:handover/providers/theme_provider.dart';
 
 void main() {
@@ -12,6 +13,7 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
           ChangeNotifierProvider(create: (_) => AuthProvider()),
+          ChangeNotifierProvider(create: (_) => ProfileProvider()),
           ChangeNotifierProvider(create: (_) => HandoverProvider()),
         ],
         child: const HandoverApp(),
