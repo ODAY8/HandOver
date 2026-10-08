@@ -7,6 +7,7 @@ class AppColors {
   static const Color primaryLight = Color(0xFFEEF2FF); // Indigo 50
   static const Color navyDark = Color(0xFF0D1527); // Dark navy banner / splash
   static const Color navyBackground = Color(0xFF0B132B);
+  static const Color error = Color(0xFFDC2626); // Error red
 
   // Light Theme
   static const Color lightBg = Color(0xFFF8FAFC); // Slate 50

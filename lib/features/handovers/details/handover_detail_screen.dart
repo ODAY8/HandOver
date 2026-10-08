@@ -7,6 +7,7 @@ import '../../../core/widgets/custody_stepper.dart';
 import '../../../core/widgets/status_badge.dart';
 import '../../../core/widgets/timeline_view.dart';
 import '../../../models/handover_status.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/handover_provider.dart';
 
 class HandoverDetailScreen extends StatelessWidget {
@@ -19,7 +20,43 @@ class HandoverDetailScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverById(handoverId) ?? provider.allHandovers.first;
+    final handover = provider.getHandoverById(handoverId) ??
+        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
+
+    if (handover == null) {
+      return Scaffold(
+        backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
+          title: const Text('Handover detail'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.inventory_2_outlined, size: 48, color: AppColors.primary),
+              const SizedBox(height: 12),
+              Text(
+                'Handover record not found',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => context.pop(),
+                child: const Text('Go back'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     final isOverdue = handover.status == HandoverStatus.overdue;
     final isDisputed = handover.status == HandoverStatus.disputed;
@@ -312,14 +349,31 @@ class HandoverDetailScreen extends StatelessWidget {
                     AppButton(
                       text: 'Resolve recorded issue',
                       icon: const Icon(Icons.check_circle_outline, size: 18, color: Colors.white),
-                      onPressed: () {
-                        provider.resolveIssue(handover.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Disputed issue resolved! Status is now active.'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
+                      onPressed: () async {
+                        final auth = context.read<AuthProvider>();
+                        final ok = await provider.resolveIssue(
+                          handover.id,
+                          resolverId: auth.user.id,
+                          resolverName: auth.user.fullName,
                         );
+                        if (context.mounted) {
+                          if (ok) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Disputed issue resolved! Status is now active.'),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(provider.errorMessage ?? 'Failed to resolve issue.'),
+                                backgroundColor: AppColors.error,
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        }
                       },
                     ),
                     const SizedBox(height: 8),

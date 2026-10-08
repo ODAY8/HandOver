@@ -18,33 +18,49 @@ class CreateStep3ReviewScreen extends StatefulWidget {
 class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
   bool _isCreating = false;
 
-  void _onCreate() {
+  void _onCreate() async {
     setState(() => _isCreating = true);
 
     final auth = context.read<AuthProvider>();
     final handoverProv = context.read<HandoverProvider>();
 
-    final created = handoverProv.createHandover(
-      itemName: widget.data['itemName'] ?? 'MacBook Pro 14"',
-      category: widget.data['category'] ?? 'Electronics',
-      identifier: widget.data['identifier'] ?? 'NL-MBP-014',
-      description: widget.data['description'] ?? '',
-      photoAsset: widget.data['photoAsset'] ?? 'assets/images/item_laptop.png',
-      senderName: auth.user.fullName,
-      senderOrg: auth.user.organization,
-      receiverName: widget.data['receiverName'] ?? 'Jordan Lee',
-      receiverOrg: widget.data['receiverOrg'] ?? 'Northline Studio',
-      receiverEmail: widget.data['receiverEmail'] ?? 'jordan@northline.studio',
-      returnExpected: widget.data['returnExpected'] ?? true,
-      returnDueAt: widget.data['returnDueAt'] as DateTime?,
-      notes: widget.data['notes'] as String?,
-    );
+    try {
+      final created = await handoverProv.createHandover(
+        ownerId: auth.user.id,
+        itemName: widget.data['itemName'] ?? 'MacBook Pro 14"',
+        category: widget.data['category'] ?? 'Electronics',
+        identifier: widget.data['identifier'] ?? 'NL-MBP-014',
+        description: widget.data['description'] ?? '',
+        photoAsset: widget.data['photoAsset'] ?? 'assets/images/item_laptop.png',
+        senderName: auth.user.fullName,
+        senderOrg: auth.user.organization,
+        receiverName: widget.data['receiverName'] ?? 'Jordan Lee',
+        receiverOrg: widget.data['receiverOrg'] ?? 'Northline Studio',
+        receiverEmail: widget.data['receiverEmail'] ?? 'jordan@northline.studio',
+        receiverPhone: widget.data['receiverPhone'] as String?,
+        returnExpected: widget.data['returnExpected'] ?? true,
+        returnDueAt: widget.data['returnDueAt'] as DateTime?,
+        notes: widget.data['notes'] as String?,
+      );
 
-    Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) {
         context.pushReplacement('/share-qr/${created.token}');
       }
-    });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to create handover: $e'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isCreating = false);
+      }
+    }
   }
 
   @override

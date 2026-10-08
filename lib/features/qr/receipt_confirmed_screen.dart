@@ -17,7 +17,22 @@ class ReceiptConfirmedScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverById(handoverId) ?? provider.allHandovers.first;
+    final handover = provider.getHandoverById(handoverId) ??
+        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
+
+    if (handover == null) {
+      return Scaffold(
+        backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go('/home'),
+          ),
+          title: const Text('Verified receipt'),
+        ),
+        body: const Center(child: Text('Handover record not found')),
+      );
+    }
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,

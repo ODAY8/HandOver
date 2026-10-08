@@ -24,12 +24,43 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
     final auth = context.watch<AuthProvider>();
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverById(widget.handoverId) ?? provider.allHandovers.first;
+    final handover = provider.getHandoverById(widget.handoverId) ??
+        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
 
-    void onConfirm() {
+    if (handover == null) {
+      return Scaffold(
+        backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
+          title: const Text('Confirm return'),
+        ),
+        body: const Center(child: Text('Handover record not found')),
+      );
+    }
+
+    void onConfirm() async {
       if (!_confirmedPhysically) return;
-      provider.confirmReturn(handover.id, senderName: auth.user.fullName);
-      context.pushReplacement('/completed/${handover.id}');
+      final ok = await provider.confirmReturn(
+        handover.id,
+        senderId: auth.user.id,
+        senderName: auth.user.fullName,
+      );
+      if (context.mounted) {
+        if (ok) {
+          context.pushReplacement('/completed/${handover.id}');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(provider.errorMessage ?? 'Failed to confirm return.'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
     }
 
     return Scaffold(
@@ -308,6 +339,7 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
               AppButton(
                 text: 'Confirm item is back in my hands',
                 icon: const Icon(Icons.check, size: 18, color: Colors.white),
+                isLoading: provider.isSubmitting,
                 onPressed: _confirmedPhysically ? onConfirm : null,
               ),
               const SizedBox(height: 12),

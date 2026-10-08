@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/status_badge.dart';
 import '../../../models/handover_status.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/handover_provider.dart';
 
 class ExpiredCodeScreen extends StatelessWidget {
@@ -18,17 +19,50 @@ class ExpiredCodeScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverById(handoverId) ?? provider.allHandovers.first;
+    final handover = provider.getHandoverById(handoverId) ??
+        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
 
-    void onRenew() {
-      provider.renewExpiredCode(handover.id);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('New confirmation code generated!'),
-          behavior: SnackBarBehavior.floating,
+    if (handover == null) {
+      return Scaffold(
+        backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
+          title: const Text('Confirmation code'),
         ),
+        body: const Center(child: Text('Handover record not found')),
       );
-      context.pushReplacement('/share-qr/${handover.token}');
+    }
+
+    void onRenew() async {
+      final auth = context.read<AuthProvider>();
+      final ok = await provider.renewExpiredCode(
+        handover.id,
+        userId: auth.user.id,
+        userName: auth.user.fullName,
+      );
+      if (context.mounted) {
+        if (ok) {
+          final updated = provider.getHandoverById(handover.id);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('New confirmation code generated!'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          context.pushReplacement('/share-qr/${updated?.token ?? handover.token}');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(provider.errorMessage ?? 'Failed to renew code.'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
     }
 
     return Scaffold(
@@ -203,6 +237,7 @@ class ExpiredCodeScreen extends StatelessWidget {
               AppButton(
                 text: 'Create a new confirmation code',
                 icon: const Icon(Icons.refresh, size: 18, color: Colors.white),
+                isLoading: provider.isSubmitting,
                 onPressed: onRenew,
               ),
               const SizedBox(height: 16),

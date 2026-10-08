@@ -5,10 +5,34 @@ import '../../core/constants/app_colors.dart';
 import '../../core/widgets/handover_card.dart';
 import '../../core/widgets/segmented_tab_bar.dart';
 import '../../core/widgets/filter_chips_bar.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/handover_provider.dart';
 
-class HandoversScreen extends StatelessWidget {
+class HandoversScreen extends StatefulWidget {
   const HandoversScreen({super.key});
+
+  @override
+  State<HandoversScreen> createState() => _HandoversScreenState();
+}
+
+class _HandoversScreenState extends State<HandoversScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
+  }
+
+  void _loadData() {
+    final auth = context.read<AuthProvider>();
+    if (auth.isAuthenticated && auth.user.id.isNotEmpty) {
+      context.read<HandoverProvider>().loadHandovers(
+            userId: auth.user.id,
+            userEmail: auth.user.email,
+          );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,50 +104,64 @@ class HandoversScreen extends StatelessWidget {
             ),
             const SizedBox(height: 14),
 
-            // Items List / Empty State
+            // Items List / Loading / Empty State
             Expanded(
-              child: items.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.inventory_2_outlined,
-                            size: 56,
-                            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  _loadData();
+                },
+                color: AppColors.primary,
+                child: provider.isLoading && items.isEmpty
+                    ? const Center(
+                        child: CircularProgressIndicator(color: AppColors.primary),
+                      )
+                    : items.isEmpty
+                        ? ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+                              Icon(
+                                Icons.inventory_2_outlined,
+                                size: 56,
+                                color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                              ),
+                              const SizedBox(height: 12),
+                              Center(
+                                child: Text(
+                                  'No handovers in "${provider.currentFilter}"',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Center(
+                                child: Text(
+                                  'Try selecting another filter or create a new handover.',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+                            itemCount: items.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 10),
+                            itemBuilder: (context, index) {
+                              final item = items[index];
+                              return HandoverCard(
+                                handover: item,
+                                onTap: () => context.push('/handover-detail/${item.id}'),
+                              );
+                            },
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'No handovers in "${provider.currentFilter}"',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Try selecting another filter or create a new handover.',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-                      itemCount: items.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
-                      itemBuilder: (context, index) {
-                        final item = items[index];
-                        return HandoverCard(
-                          handover: item,
-                          onTap: () => context.push('/handover-detail/${item.id}'),
-                        );
-                      },
-                    ),
+              ),
             ),
           ],
         ),

@@ -8,8 +8,10 @@ import 'providers/handover_provider.dart';
 import 'providers/profile_provider.dart';
 import 'providers/theme_provider.dart';
 import 'repositories/auth_repository.dart';
+import 'repositories/handover_repository.dart';
 import 'repositories/profile_repository.dart';
 import 'services/auth_service.dart';
+import 'services/handover_service.dart';
 import 'services/profile_service.dart';
 
 void main() async {
@@ -28,6 +30,8 @@ void main() async {
   final authRepository = SupabaseAuthRepository(authService: authService);
   final profileService = SupabaseProfileService();
   final profileRepository = SupabaseProfileRepository(service: profileService);
+  final handoverService = SupabaseHandoverService();
+  final handoverRepository = SupabaseHandoverRepository(service: handoverService);
 
   runApp(
     MultiProvider(
@@ -35,7 +39,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider(authRepository: authRepository)),
         ChangeNotifierProvider(create: (_) => ProfileProvider(profileRepository: profileRepository)),
-        ChangeNotifierProvider(create: (_) => HandoverProvider()),
+        ChangeNotifierProvider(create: (_) => HandoverProvider(handoverRepository: handoverRepository)),
       ],
       child: const HandoverApp(),
     ),

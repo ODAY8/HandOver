@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/custom_text_field.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../providers/handover_provider.dart';
 
 class RecordIssueScreen extends StatefulWidget {
@@ -36,22 +37,36 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
     super.dispose();
   }
 
-  void _onSubmit() {
+  void _onSubmit() async {
+    final auth = context.read<AuthProvider>();
     final provider = context.read<HandoverProvider>();
-    provider.recordIssue(
+    final ok = await provider.recordIssue(
       widget.handoverId,
+      reporterId: auth.user.id,
+      reportedBy: auth.user.fullName,
       reason: _selectedReason,
       description: _descriptionController.text.trim(),
     );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Issue recorded on handover. Status updated to Disputed.'),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-
-    context.pop();
+    if (mounted) {
+      if (ok) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Issue recorded on handover. Status updated to Disputed.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        context.pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(provider.errorMessage ?? 'Failed to record issue.'),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -59,7 +74,22 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverById(widget.handoverId) ?? provider.allHandovers.first;
+    final handover = provider.getHandoverById(widget.handoverId) ??
+        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
+
+    if (handover == null) {
+      return Scaffold(
+        backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
+          title: const Text('Record issue'),
+        ),
+        body: const Center(child: Text('Handover record not found')),
+      );
+    }
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
@@ -299,6 +329,7 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
               AppButton(
                 text: 'Record issue on this handover',
                 icon: const Icon(Icons.flag_outlined, size: 18, color: Colors.white),
+                isLoading: provider.isSubmitting,
                 onPressed: _onSubmit,
               ),
               const SizedBox(height: 16),

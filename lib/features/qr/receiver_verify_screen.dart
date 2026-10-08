@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/widgets/app_button.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/handover_provider.dart';
 
 class ReceiverVerifyScreen extends StatefulWidget {
@@ -22,12 +23,45 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverByToken(widget.token) ?? provider.allHandovers.first;
+    final handover = provider.getHandoverByToken(widget.token) ??
+        provider.getHandoverById(widget.token) ??
+        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
 
-    void onConfirm() {
+    if (handover == null) {
+      return Scaffold(
+        backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
+          title: const Text('Review receipt'),
+        ),
+        body: const Center(child: Text('Handover record not found')),
+      );
+    }
+
+    void onConfirm() async {
       if (!_hasReceived) return;
-      provider.confirmReceipt(handover.id, receiverName: 'Jordan Lee');
-      context.pushReplacement('/receipt-confirmed/${handover.id}');
+      final auth = context.read<AuthProvider>();
+      final ok = await provider.confirmReceipt(
+        handover.id,
+        receiverId: auth.user.id,
+        receiverName: auth.user.fullName,
+      );
+      if (context.mounted) {
+        if (ok) {
+          context.pushReplacement('/receipt-confirmed/${handover.id}');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(provider.errorMessage ?? 'Failed to confirm receipt.'),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
     }
 
     return Scaffold(
@@ -272,6 +306,7 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
               AppButton(
                 text: 'Confirm receipt',
                 icon: const Icon(Icons.check, size: 18, color: Colors.white),
+                isLoading: provider.isSubmitting,
                 onPressed: _hasReceived ? onConfirm : null,
               ),
               const SizedBox(height: 10),
