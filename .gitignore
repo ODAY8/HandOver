@@ -1,45 +1,72 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+# ==============================================================================
+# Flutter / Dart Generated Files
+# ==============================================================================
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.flutter_tool_state
+**/ios/Flutter/.last_build_id
+**/doc/api/
+/coverage/
 
-# IntelliJ related
+# ==============================================================================
+# IDE / Editor Files
+# ==============================================================================
+.idea/
 *.iml
 *.ipr
 *.iws
-.idea/
+.vscode/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# ==============================================================================
+# Operating System Files
+# ==============================================================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
+# ==============================================================================
+# Environment Variables & Secrets (CRITICAL)
+# ==============================================================================
+.env
+.env.*
+*.env
+.env.local
+.env.production
+.env.development
+!.env.example
 
-# Symbolication related
+# ==============================================================================
+# Credentials, Signing Keys & Certificates (CRITICAL)
+# ==============================================================================
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+google-services.json
+GoogleService-Info.plist
+
+# ==============================================================================
+# Build Artifacts & Symbols
+# ==============================================================================
 app.*.symbols
-
-# Obfuscation related
 app.*.map.json
-
-# Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# ==============================================================================
+# Local Design Scratch & Working Inspection Files
+# ==============================================================================
+screens_inspect/
+figma_highres.png
+figma_overview.png
+Handover_Design_TechStack_Workflow.png
+Handover_Product_Design_and_Tech_Stack.pdf
+*.log
