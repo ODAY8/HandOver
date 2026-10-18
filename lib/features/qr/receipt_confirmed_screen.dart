@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/date_formatter.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/status_badge.dart';
+import '../../models/handover_event.dart';
 import '../../models/handover_status.dart';
 import '../../providers/handover_provider.dart';
 
@@ -187,13 +189,26 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                             color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                           ),
                         ),
-                        Text(
-                          '14 Oct 2026 • 9:12 AM',
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                          ),
+                        Builder(
+                          builder: (context) {
+                            DateTime? confirmedAt = handover.receivedAt;
+                            if (confirmedAt == null) {
+                              for (final ev in handover.events) {
+                                if (ev.type == HandoverEventType.received) {
+                                  confirmedAt = ev.timestamp;
+                                  break;
+                                }
+                              }
+                            }
+                            return Text(
+                              AppDateFormatter.formatDateTime(confirmedAt),
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

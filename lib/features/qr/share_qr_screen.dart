@@ -3,8 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/date_formatter.dart';
 import '../../core/widgets/app_button.dart';
 import '../../core/widgets/status_badge.dart';
+import '../../models/handover_event.dart';
 import '../../models/handover_status.dart';
 import '../../providers/handover_provider.dart';
 
@@ -187,13 +189,26 @@ class ShareQrScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              Text(
-                'Awaiting acknowledgment. Code expires 15 Oct 2026 at 9:00 AM; expiry does not confirm receipt.',
-                style: TextStyle(
-                  fontSize: 11.5,
-                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                  height: 1.35,
-                ),
+              Builder(
+                builder: (context) {
+                  final createdDate = handover.createdAt ??
+                      (handover.events.isNotEmpty && handover.events.first.type == HandoverEventType.created
+                          ? handover.events.first.timestamp
+                          : null);
+                  final expiryFormatted = AppDateFormatter.formatQrExpiry(createdDate, fallback: '');
+                  final expiryText = expiryFormatted.isNotEmpty
+                      ? 'Awaiting acknowledgment. Code expires $expiryFormatted; expiry does not confirm receipt.'
+                      : 'Awaiting acknowledgment. Code expiry does not confirm receipt.';
+
+                  return Text(
+                    expiryText,
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                      height: 1.35,
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 28),
 
