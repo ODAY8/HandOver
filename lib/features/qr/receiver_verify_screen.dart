@@ -16,7 +16,7 @@ class ReceiverVerifyScreen extends StatefulWidget {
 }
 
 class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
-  bool _hasReceived = true;
+  bool _hasReceived = false;
 
   @override
   Widget build(BuildContext context) {

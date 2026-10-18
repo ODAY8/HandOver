@@ -16,7 +16,7 @@ class ConfirmReturnScreen extends StatefulWidget {
 }
 
 class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
-  bool _confirmedPhysically = true;
+  bool _confirmedPhysically = false;
 
   @override
   Widget build(BuildContext context) {
