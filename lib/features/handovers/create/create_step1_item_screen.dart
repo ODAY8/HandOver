@@ -15,7 +15,8 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
   final _nameController = TextEditingController(text: 'MacBook Pro 14"');
   final _identifierController = TextEditingController(text: 'NL-MBP-014');
   final _descriptionController = TextEditingController(
-    text: 'Space gray, 14-inch. Includes charger. No visible damage at handover.',
+    text:
+        'Space gray, 14-inch. Includes charger. No visible damage at handover.',
   );
   String _selectedCategory = 'Electronics';
 
@@ -63,10 +64,7 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
         ),
         title: const Text('Create handover'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
       ),
       body: SafeArea(
@@ -91,7 +89,9 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
                     child: Container(
                       height: 4,
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkBorder : const Color(0xFFE2E8F0),
+                        color: isDark
+                            ? AppColors.darkBorder
+                            : const Color(0xFFE2E8F0),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -101,7 +101,9 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
                     child: Container(
                       height: 4,
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkBorder : const Color(0xFFE2E8F0),
+                        color: isDark
+                            ? AppColors.darkBorder
+                            : const Color(0xFFE2E8F0),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -113,7 +115,10 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
             // Form content
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -135,7 +140,9 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                         height: 1.2,
                       ),
                     ),
@@ -145,10 +152,14 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurface : const Color(0xFFF5F7FF),
+                        color: isDark
+                            ? AppColors.darkSurface
+                            : const Color(0xFFF5F7FF),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isDark ? AppColors.darkBorder : const Color(0xFFE0E7FF),
+                          color: isDark
+                              ? AppColors.darkBorder
+                              : const Color(0xFFE0E7FF),
                         ),
                       ),
                       child: Row(
@@ -157,7 +168,9 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
                             width: 50,
                             height: 50,
                             decoration: BoxDecoration(
-                              color: isDark ? AppColors.darkSurfaceLight : Colors.white,
+                              color: isDark
+                                  ? AppColors.darkSurfaceLight
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             padding: const EdgeInsets.all(6),
@@ -180,7 +193,9 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                    color: isDark
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.lightTextPrimary,
                                   ),
                                 ),
                                 const SizedBox(height: 2),
@@ -188,7 +203,9 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
                                   'Optional • Make it easy to identify',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary,
+                                    color: isDark
+                                        ? AppColors.darkTextMuted
+                                        : AppColors.lightTextSecondary,
                                   ),
                                 ),
                               ],
@@ -219,17 +236,23 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurface : AppColors.lightCardSubtle.withOpacity(0.6),
+                        color: isDark
+                            ? AppColors.darkSurface
+                            : AppColors.lightCardSubtle.withOpacity(0.6),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                          color: isDark
+                              ? AppColors.darkBorder
+                              : AppColors.lightBorder,
                         ),
                       ),
                       child: DropdownButtonHideUnderline(
@@ -237,11 +260,15 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
                           value: _selectedCategory,
                           isExpanded: true,
                           icon: const Icon(Icons.keyboard_arrow_down),
-                          dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
+                          dropdownColor: isDark
+                              ? AppColors.darkSurface
+                              : Colors.white,
                           style: TextStyle(
                             fontSize: 14.5,
                             fontWeight: FontWeight.w500,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                           items: _categories.map((cat) {
                             return DropdownMenuItem(
@@ -250,7 +277,9 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
                             );
                           }).toList(),
                           onChanged: (val) {
-                            if (val != null) setState(() => _selectedCategory = val);
+                            if (val != null) {
+                              setState(() => _selectedCategory = val);
+                            }
                           },
                         ),
                       ),
@@ -281,7 +310,11 @@ class _CreateStep1ItemScreenState extends State<CreateStep1ItemScreen> {
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               child: AppButton(
                 text: 'Continue to receiver',
-                trailingIcon: const Icon(Icons.arrow_forward, size: 18, color: Colors.white),
+                trailingIcon: const Icon(
+                  Icons.arrow_forward,
+                  size: 18,
+                  color: Colors.white,
+                ),
                 onPressed: _onContinue,
               ),
             ),

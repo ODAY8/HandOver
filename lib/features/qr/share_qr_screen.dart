@@ -1,7 +1,10 @@
+import 'dart:io';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../core/widgets/app_button.dart';
@@ -20,9 +23,8 @@ class ShareQrScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverByToken(token) ??
-        provider.getHandoverById(token) ??
-        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
+    final handover =
+        provider.getHandoverByToken(token) ?? provider.getHandoverById(token);
 
     if (handover == null) {
       return Scaffold(
@@ -47,10 +49,7 @@ class ShareQrScreen extends StatelessWidget {
         ),
         title: const Text('Share handover'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
       ),
       body: SafeArea(
@@ -65,7 +64,9 @@ class ShareQrScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               const SizedBox(height: 6),
@@ -75,7 +76,9 @@ class ShareQrScreen extends StatelessWidget {
                 'Ask ${handover.receiverName} to scan and acknowledge the item in hand.',
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                 ),
               ),
               const SizedBox(height: 24),
@@ -88,7 +91,9 @@ class ShareQrScreen extends StatelessWidget {
                   color: isDark ? AppColors.darkSurface : Colors.white,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -125,7 +130,9 @@ class ShareQrScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w700,
-                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                color: isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary,
                               ),
                             ),
                           ],
@@ -163,7 +170,9 @@ class ShareQrScreen extends StatelessWidget {
                       'Illustrative code • design mockup',
                       style: TextStyle(
                         fontSize: 11,
-                        color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                        color: isDark
+                            ? AppColors.darkTextMuted
+                            : AppColors.lightTextMuted,
                       ),
                     ),
                   ],
@@ -177,7 +186,9 @@ class ShareQrScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               const SizedBox(height: 4),
@@ -185,17 +196,27 @@ class ShareQrScreen extends StatelessWidget {
                 '${handover.senderName}  →  ${handover.receiverName} • ${handover.receiverOrg}',
                 style: TextStyle(
                   fontSize: 12.5,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                 ),
               ),
               const SizedBox(height: 6),
               Builder(
                 builder: (context) {
-                  final createdDate = handover.createdAt ??
-                      (handover.events.isNotEmpty && handover.events.first.type == HandoverEventType.created
-                          ? handover.events.first.timestamp
-                          : null);
-                  final expiryFormatted = AppDateFormatter.formatQrExpiry(createdDate, fallback: '');
+                  DateTime? createdDate = handover.createdAt;
+                  if (createdDate == null) {
+                    for (final ev in handover.events) {
+                      if (ev.type == HandoverEventType.created) {
+                        createdDate = ev.timestamp;
+                        break;
+                      }
+                    }
+                  }
+                  final expiryFormatted = AppDateFormatter.formatQrExpiry(
+                    createdDate,
+                    fallback: '',
+                  );
                   final expiryText = expiryFormatted.isNotEmpty
                       ? 'Awaiting acknowledgment. Code expires $expiryFormatted; expiry does not confirm receipt.'
                       : 'Awaiting acknowledgment. Code expiry does not confirm receipt.';
@@ -204,7 +225,9 @@ class ShareQrScreen extends StatelessWidget {
                     expiryText,
                     style: TextStyle(
                       fontSize: 11.5,
-                      color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                      color: isDark
+                          ? AppColors.darkTextMuted
+                          : AppColors.lightTextMuted,
                       height: 1.35,
                     ),
                   );
@@ -215,21 +238,115 @@ class ShareQrScreen extends StatelessWidget {
               // Action Buttons
               AppButton(
                 text: 'Share QR code',
-                icon: const Icon(Icons.share_outlined, size: 18, color: Colors.white),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Handover QR code copied to clipboard / shared.'),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
+                icon: const Icon(
+                  Icons.share_outlined,
+                  size: 18,
+                  color: Colors.white,
+                ),
+                onPressed: () async {
+                  try {
+                    final message =
+                        'HandOver Custody Request:\n'
+                        '${handover.senderName} has initiated a handover for "${handover.itemName}" (${handover.identifier}).\n'
+                        'Reference Token: ${handover.token}\n'
+                        'Scan the QR code or enter token in HandOver to review and confirm physical custody.';
+
+                    File? tempQrFile;
+                    try {
+                      final qrPainter = QrPainter(
+                        data: 'HANDOVER:${handover.token}',
+                        version: QrVersions.auto,
+                        eyeStyle: const QrEyeStyle(
+                          eyeShape: QrEyeShape.square,
+                          color: AppColors.navyDark,
+                        ),
+                        dataModuleStyle: const QrDataModuleStyle(
+                          dataModuleShape: QrDataModuleShape.square,
+                          color: AppColors.navyDark,
+                        ),
+                        gapless: true,
+                        emptyColor: Colors.white,
+                      );
+                      final byteData = await qrPainter.toImageData(
+                        600,
+                        format: ui.ImageByteFormat.png,
+                      );
+                      if (byteData != null) {
+                        final bytes = byteData.buffer.asUint8List();
+                        final tempDir = Directory.systemTemp;
+                        final file = File(
+                          '${tempDir.path}/handover_qr_${handover.token}.png',
+                        );
+                        await file.writeAsBytes(bytes, flush: true);
+                        tempQrFile = file;
+                      }
+                    } catch (_) {
+                      // If canvas painting or temp file fails, gracefully fallback to text share
+                    }
+
+                    final ShareResult result;
+                    if (tempQrFile != null && await tempQrFile.exists()) {
+                      result = await Share.shareXFiles(
+                        [
+                          XFile(
+                            tempQrFile.path,
+                            mimeType: 'image/png',
+                            name: 'handover_${handover.token}.png',
+                          ),
+                        ],
+                        text: message,
+                        subject:
+                            'HandOver confirmation code: ${handover.token}',
+                      );
+                    } else {
+                      result = await Share.share(
+                        message,
+                        subject:
+                            'HandOver confirmation code: ${handover.token}',
+                      );
+                    }
+
+                    if (context.mounted) {
+                      if (result.status == ShareResultStatus.success) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Handover shared successfully.'),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      } else if (result.status ==
+                          ShareResultStatus.unavailable) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Sharing is unavailable on this device.',
+                            ),
+                            backgroundColor: AppColors.error,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                      // If dismissed/cancelled, honestly do nothing.
+                    }
+                  } catch (e) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Failed to share handover: $e'),
+                          backgroundColor: AppColors.error,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  }
                 },
               ),
               const SizedBox(height: 10),
               AppButton(
                 text: 'View pending record',
                 variant: ButtonVariant.secondary,
-                onPressed: () => context.push('/handover-detail/${handover.id}'),
+                onPressed: () =>
+                    context.push('/handover-detail/${handover.id}'),
               ),
               const SizedBox(height: 16),
             ],

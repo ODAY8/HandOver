@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/date_formatter.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../models/handover_event.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/handover_provider.dart';
 
@@ -24,8 +26,7 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
     final auth = context.watch<AuthProvider>();
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverById(widget.handoverId) ??
-        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
+    final handover = provider.getHandoverById(widget.handoverId);
 
     if (handover == null) {
       return Scaffold(
@@ -54,7 +55,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(provider.errorMessage ?? 'Failed to confirm return.'),
+              content: Text(
+                provider.errorMessage ?? 'Failed to confirm return.',
+              ),
               backgroundColor: AppColors.error,
               behavior: SnackBarBehavior.floating,
             ),
@@ -72,10 +75,7 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
         ),
         title: Text('${handover.token} • Confirm return'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
       ),
       body: SafeArea(
@@ -90,7 +90,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               const SizedBox(height: 6),
@@ -100,7 +102,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                 '${auth.user.fullName.split(" ").first}, confirm only after you\'ve physically received this ${handover.itemName.toLowerCase()} back from ${handover.receiverName}.',
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                   height: 1.4,
                 ),
               ),
@@ -110,10 +114,14 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSurface : const Color(0xFFF8FAFC),
+                  color: isDark
+                      ? AppColors.darkSurface
+                      : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                 ),
                 child: Row(
@@ -122,7 +130,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurfaceLight : Colors.white,
+                        color: isDark
+                            ? AppColors.darkSurfaceLight
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       padding: const EdgeInsets.all(8),
@@ -145,7 +155,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
                             ),
                           ),
                           const SizedBox(height: 3),
@@ -153,7 +165,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                             'Space gray • ${handover.identifier}',
                             style: TextStyle(
                               fontSize: 13,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                             ),
                           ),
                         ],
@@ -171,7 +185,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                   color: isDark ? AppColors.darkSurface : Colors.white,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                 ),
                 child: Column(
@@ -183,7 +199,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                           'Returned by',
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                         ),
                         Text(
@@ -191,7 +209,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                           style: TextStyle(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                       ],
@@ -204,16 +224,38 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                           'Return date',
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                         ),
-                        Text(
-                          '18 Oct 2026 • 2:30 PM',
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
-                          ),
+                        Builder(
+                          builder: (context) {
+                            DateTime? returnedAt = handover.returnedAt;
+                            if (returnedAt == null) {
+                              for (final ev in handover.events) {
+                                if (ev.type == HandoverEventType.returned) {
+                                  if (returnedAt == null ||
+                                      ev.timestamp.isAfter(returnedAt)) {
+                                    returnedAt = ev.timestamp;
+                                  }
+                                }
+                              }
+                            }
+                            final returnDateText = returnedAt != null
+                                ? AppDateFormatter.formatDateTime(returnedAt)
+                                : 'Recorded upon confirmation';
+                            return Text(
+                              returnDateText,
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -225,7 +267,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                           'Confirmed by',
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                         ),
                         Text(
@@ -233,7 +277,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                           style: TextStyle(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                       ],
@@ -245,14 +291,25 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
 
               // Confirmation Checkbox Card
               GestureDetector(
-                onTap: () => setState(() => _confirmedPhysically = !_confirmedPhysically),
+                onTap: () => setState(
+                  () => _confirmedPhysically = !_confirmedPhysically,
+                ),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkSurfaceLight : const Color(0xFFEEF2FF),
+                    color: isDark
+                        ? AppColors.darkSurfaceLight
+                        : const Color(0xFFEEF2FF),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: _confirmedPhysically ? AppColors.primary : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                      color: _confirmedPhysically
+                          ? AppColors.primary
+                          : (isDark
+                                ? AppColors.darkBorder
+                                : AppColors.lightBorder),
                       width: 1.2,
                     ),
                   ),
@@ -262,15 +319,25 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                         width: 22,
                         height: 22,
                         decoration: BoxDecoration(
-                          color: _confirmedPhysically ? AppColors.primary : Colors.transparent,
+                          color: _confirmedPhysically
+                              ? AppColors.primary
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
-                            color: _confirmedPhysically ? AppColors.primary : (isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted),
+                            color: _confirmedPhysically
+                                ? AppColors.primary
+                                : (isDark
+                                      ? AppColors.darkTextMuted
+                                      : AppColors.lightTextMuted),
                             width: 1.5,
                           ),
                         ),
                         child: _confirmedPhysically
-                            ? const Icon(Icons.check, size: 16, color: Colors.white)
+                            ? const Icon(
+                                Icons.check,
+                                size: 16,
+                                color: Colors.white,
+                              )
                             : null,
                       ),
                       const SizedBox(width: 12),
@@ -280,7 +347,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                           style: TextStyle(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                       ),
@@ -294,7 +363,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSurfaceLight : const Color(0xFFEFF6FF),
+                  color: isDark
+                      ? AppColors.darkSurfaceLight
+                      : const Color(0xFFEFF6FF),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
@@ -323,7 +394,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                             'A return request from ${handover.receiverName} does not mark this Returned. Your acknowledgment completes the record.',
                             style: TextStyle(
                               fontSize: 12,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                               height: 1.35,
                             ),
                           ),
@@ -350,7 +423,9 @@ class _ConfirmReturnScreenState extends State<ConfirmReturnScreen> {
                   child: Text(
                     'Not yet returned',
                     style: TextStyle(
-                      color: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary,
+                      color: isDark
+                          ? AppColors.darkTextMuted
+                          : AppColors.lightTextSecondary,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),

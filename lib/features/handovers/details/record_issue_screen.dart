@@ -19,7 +19,8 @@ class RecordIssueScreen extends StatefulWidget {
 class _RecordIssueScreenState extends State<RecordIssueScreen> {
   String _selectedReason = 'Item condition differs';
   final _descriptionController = TextEditingController(
-    text: 'Small scuff on the laptop lid noticed during return inspection. Charger is present.',
+    text:
+        'Small scuff on the laptop lid noticed during return inspection. Charger is present.',
   );
 
   final List<String> _reasons = [
@@ -52,7 +53,9 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
       if (ok) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Issue recorded on handover. Status updated to Disputed.'),
+            content: Text(
+              'Issue recorded on handover. Status updated to Disputed.',
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -74,8 +77,7 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverById(widget.handoverId) ??
-        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
+    final handover = provider.getHandoverById(widget.handoverId);
 
     if (handover == null) {
       return Scaffold(
@@ -100,10 +102,7 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
         ),
         title: Text('${handover.token} • Record issue'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
       ),
       body: SafeArea(
@@ -118,7 +117,9 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               const SizedBox(height: 6),
@@ -128,7 +129,9 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
                 'Keep the facts attached to the physical item.',
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                 ),
               ),
               const SizedBox(height: 20),
@@ -137,10 +140,14 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSurface : const Color(0xFFF8FAFC),
+                  color: isDark
+                      ? AppColors.darkSurface
+                      : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                 ),
                 child: Row(
@@ -149,7 +156,9 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurfaceLight : Colors.white,
+                        color: isDark
+                            ? AppColors.darkSurfaceLight
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       padding: const EdgeInsets.all(8),
@@ -172,7 +181,9 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
                             ),
                           ),
                           const SizedBox(height: 3),
@@ -180,7 +191,9 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
                             'Space gray • ${handover.identifier}',
                             style: TextStyle(
                               fontSize: 13,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                             ),
                           ),
                         ],
@@ -197,17 +210,23 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSurface : AppColors.lightCardSubtle.withOpacity(0.6),
+                  color: isDark
+                      ? AppColors.darkSurface
+                      : AppColors.lightCardSubtle.withOpacity(0.6),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                 ),
                 child: DropdownButtonHideUnderline(
@@ -215,11 +234,15 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
                     value: _selectedReason,
                     isExpanded: true,
                     icon: const Icon(Icons.keyboard_arrow_down),
-                    dropdownColor: isDark ? AppColors.darkSurface : Colors.white,
+                    dropdownColor: isDark
+                        ? AppColors.darkSurface
+                        : Colors.white,
                     style: TextStyle(
                       fontSize: 14.5,
                       fontWeight: FontWeight.w500,
-                      color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                      color: isDark
+                          ? AppColors.darkTextPrimary
+                          : AppColors.lightTextPrimary,
                     ),
                     items: _reasons.map((r) {
                       return DropdownMenuItem(value: r, child: Text(r));
@@ -242,12 +265,17 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
 
               // Photo uploader
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.darkSurface : Colors.white,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                 ),
                 child: Row(
@@ -264,12 +292,18 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
                         style: TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                         ),
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.add, size: 20, color: AppColors.primary),
+                      icon: const Icon(
+                        Icons.add,
+                        size: 20,
+                        color: AppColors.primary,
+                      ),
                       onPressed: () {},
                     ),
                   ],
@@ -281,10 +315,14 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.statusDisputedDarkBg.withOpacity(0.4) : const Color(0xFFFFFBEB),
+                  color: isDark
+                      ? AppColors.statusDisputedDarkBg.withOpacity(0.4)
+                      : const Color(0xFFFFFBEB),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: const Color(0xFFFDE68A).withOpacity(isDark ? 0.2 : 0.8),
+                    color: const Color(
+                      0xFFFDE68A,
+                    ).withOpacity(isDark ? 0.2 : 0.8),
                   ),
                 ),
                 child: Row(
@@ -313,7 +351,9 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
                             'This flags a disputed handover. It does not undo ${handover.receiverName}\'s receipt or confirm the item\'s return.',
                             style: TextStyle(
                               fontSize: 12,
-                              color: isDark ? Colors.white70 : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? Colors.white70
+                                  : AppColors.lightTextSecondary,
                               height: 1.35,
                             ),
                           ),
@@ -328,7 +368,11 @@ class _RecordIssueScreenState extends State<RecordIssueScreen> {
               // Submit Button
               AppButton(
                 text: 'Record issue on this handover',
-                icon: const Icon(Icons.flag_outlined, size: 18, color: Colors.white),
+                icon: const Icon(
+                  Icons.flag_outlined,
+                  size: 18,
+                  color: Colors.white,
+                ),
                 isLoading: provider.isSubmitting,
                 onPressed: _onSubmit,
               ),

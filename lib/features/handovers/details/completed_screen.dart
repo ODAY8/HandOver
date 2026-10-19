@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/date_formatter.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/status_badge.dart';
 import '../../../core/widgets/timeline_view.dart';
 import '../../../models/handover_status.dart';
-import '../../../models/handover_event.dart';
 import '../../../providers/handover_provider.dart';
 
 class CompletedScreen extends StatelessWidget {
@@ -19,8 +19,7 @@ class CompletedScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverById(handoverId) ??
-        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
+    final handover = provider.getHandoverById(handoverId);
 
     if (handover == null) {
       return Scaffold(
@@ -36,35 +35,8 @@ class CompletedScreen extends StatelessWidget {
       );
     }
 
-    // Ensure we show complete event cycle as depicted in Figma screen 18
-    final events = handover.events.isNotEmpty
-        ? handover.events
-        : [
-            HandoverEvent(
-              id: 'ev_c1',
-              title: '${handover.senderName} created the record',
-              timestamp: DateTime(2026, 10, 14, 9, 0),
-              type: HandoverEventType.created,
-            ),
-            HandoverEvent(
-              id: 'ev_c2',
-              title: '${handover.receiverName} confirmed physical receipt',
-              timestamp: DateTime(2026, 10, 14, 9, 12),
-              type: HandoverEventType.received,
-            ),
-            HandoverEvent(
-              id: 'ev_c3',
-              title: 'Condition issue resolved',
-              timestamp: DateTime(2026, 10, 18, 14, 25),
-              type: HandoverEventType.issueResolved,
-            ),
-            HandoverEvent(
-              id: 'ev_c4',
-              title: '${handover.senderName} confirmed physical return',
-              timestamp: DateTime(2026, 10, 18, 14, 30),
-              type: HandoverEventType.returned,
-            ),
-          ];
+    // Use actual handover custody events; do not fabricate events with hard-coded timestamps.
+    final events = handover.events;
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
@@ -75,10 +47,7 @@ class CompletedScreen extends StatelessWidget {
         ),
         title: Text('${handover.token} • Completed'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
       ),
       body: SafeArea(
@@ -114,7 +83,9 @@ class CompletedScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -131,7 +102,9 @@ class CompletedScreen extends StatelessWidget {
                   color: isDark ? AppColors.darkSurface : Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                 ),
                 child: Column(
@@ -142,7 +115,9 @@ class CompletedScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16.5,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -150,7 +125,9 @@ class CompletedScreen extends StatelessWidget {
                       '${handover.token} • ${handover.identifier} • ${handover.receiverOrg}',
                       style: TextStyle(
                         fontSize: 12.5,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -165,27 +142,61 @@ class CompletedScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     Divider(
                       height: 1,
-                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      color: isDark
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder,
                     ),
                     const SizedBox(height: 16),
 
                     // Chain of custody events
-                    TimelineView(events: events),
+                    if (events.isNotEmpty)
+                      TimelineView(events: events)
+                    else
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          'No custody events recorded',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            color: isDark
+                                ? AppColors.darkTextMuted
+                                : AppColors.lightTextMuted,
+                          ),
+                        ),
+                      ),
 
                     const SizedBox(height: 12),
                     Divider(
                       height: 1,
-                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      color: isDark
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder,
                     ),
                     const SizedBox(height: 12),
 
-                    Text(
-                      'Return due: 16 Oct 2026 • 5:00 PM\nA complete receipt, from handover to return.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
-                        height: 1.4,
-                      ),
+                    Builder(
+                      builder: (context) {
+                        final String returnDueText;
+                        if (handover.returnDueAt != null) {
+                          returnDueText =
+                              'Return due: ${AppDateFormatter.formatDateTime(handover.returnDueAt)}';
+                        } else if (handover.returnExpected) {
+                          returnDueText = 'Return due: —';
+                        } else {
+                          returnDueText = 'No return required';
+                        }
+
+                        return Text(
+                          '$returnDueText\nA complete receipt, from handover to return.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isDark
+                                ? AppColors.darkTextMuted
+                                : AppColors.lightTextMuted,
+                            height: 1.4,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -195,11 +206,17 @@ class CompletedScreen extends StatelessWidget {
               // Action Buttons
               AppButton(
                 text: 'Export receipt',
-                icon: const Icon(Icons.download_outlined, size: 18, color: Colors.white),
+                icon: const Icon(
+                  Icons.download_outlined,
+                  size: 18,
+                  color: Colors.white,
+                ),
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Handover PDF receipt exported successfully!'),
+                      content: Text(
+                        'Handover PDF receipt exported successfully!',
+                      ),
                       behavior: SnackBarBehavior.floating,
                     ),
                   );

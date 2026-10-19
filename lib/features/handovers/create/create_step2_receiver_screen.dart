@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/date_formatter.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/custom_text_field.dart';
 import '../../../core/widgets/segmented_tab_bar.dart';
@@ -11,19 +12,26 @@ class CreateStep2ReceiverScreen extends StatefulWidget {
   const CreateStep2ReceiverScreen({super.key, required this.itemData});
 
   @override
-  State<CreateStep2ReceiverScreen> createState() => _CreateStep2ReceiverScreenState();
+  State<CreateStep2ReceiverScreen> createState() =>
+      _CreateStep2ReceiverScreenState();
 }
 
 class _CreateStep2ReceiverScreenState extends State<CreateStep2ReceiverScreen> {
   int _recipientTypeIndex = 0; // 0: Person, 1: Organization
   final _receiverNameController = TextEditingController(text: 'Jordan Lee');
-  final _receiverEmailController = TextEditingController(text: 'jordan@northline.studio');
-  final _receiverOrgController = TextEditingController(text: 'Northline Studio');
+  final _receiverEmailController = TextEditingController(
+    text: 'jordan@northline.studio',
+  );
+  final _receiverOrgController = TextEditingController(
+    text: 'Northline Studio',
+  );
   final _notesController = TextEditingController(
     text: 'For the studio workshop. Please return with the charger.',
   );
   bool _returnExpected = true;
-  DateTime _returnDueDate = DateTime(2026, 10, 16, 17, 0);
+  DateTime _returnDueDate = DateTime.now()
+      .add(const Duration(days: 2))
+      .copyWith(hour: 17, minute: 0, second: 0, millisecond: 0, microsecond: 0);
 
   @override
   void dispose() {
@@ -63,10 +71,7 @@ class _CreateStep2ReceiverScreenState extends State<CreateStep2ReceiverScreen> {
         ),
         title: const Text('Create handover'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
       ),
       body: SafeArea(
@@ -101,7 +106,9 @@ class _CreateStep2ReceiverScreenState extends State<CreateStep2ReceiverScreen> {
                     child: Container(
                       height: 4,
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkBorder : const Color(0xFFE2E8F0),
+                        color: isDark
+                            ? AppColors.darkBorder
+                            : const Color(0xFFE2E8F0),
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -113,7 +120,10 @@ class _CreateStep2ReceiverScreenState extends State<CreateStep2ReceiverScreen> {
             // Form content
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -135,7 +145,9 @@ class _CreateStep2ReceiverScreenState extends State<CreateStep2ReceiverScreen> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 18),
@@ -169,10 +181,14 @@ class _CreateStep2ReceiverScreenState extends State<CreateStep2ReceiverScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurface : const Color(0xFFF8FAFC),
+                        color: isDark
+                            ? AppColors.darkSurface
+                            : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                          color: isDark
+                              ? AppColors.darkBorder
+                              : AppColors.lightBorder,
                         ),
                       ),
                       child: Column(
@@ -186,7 +202,9 @@ class _CreateStep2ReceiverScreenState extends State<CreateStep2ReceiverScreen> {
                                 style: TextStyle(
                                   fontSize: 14.5,
                                   fontWeight: FontWeight.w600,
-                                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                  color: isDark
+                                      ? AppColors.darkTextPrimary
+                                      : AppColors.lightTextPrimary,
                                 ),
                               ),
                               Switch.adaptive(
@@ -207,7 +225,9 @@ class _CreateStep2ReceiverScreenState extends State<CreateStep2ReceiverScreen> {
                                   context: context,
                                   initialDate: _returnDueDate,
                                   firstDate: DateTime.now(),
-                                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                                  lastDate: DateTime.now().add(
+                                    const Duration(days: 365),
+                                  ),
                                 );
                                 if (date != null) {
                                   setState(() {
@@ -223,12 +243,19 @@ class _CreateStep2ReceiverScreenState extends State<CreateStep2ReceiverScreen> {
                               },
                               borderRadius: BorderRadius.circular(12),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 12,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: isDark ? AppColors.darkSurfaceLight : Colors.white,
+                                  color: isDark
+                                      ? AppColors.darkSurfaceLight
+                                      : Colors.white,
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
-                                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                                    color: isDark
+                                        ? AppColors.darkBorder
+                                        : AppColors.lightBorder,
                                   ),
                                 ),
                                 child: Row(
@@ -240,11 +267,15 @@ class _CreateStep2ReceiverScreenState extends State<CreateStep2ReceiverScreen> {
                                     ),
                                     const SizedBox(width: 10),
                                     Text(
-                                      '16 Oct 2026 • 5:00 PM',
+                                      AppDateFormatter.formatDateTime(
+                                        _returnDueDate,
+                                      ),
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
-                                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                        color: isDark
+                                            ? AppColors.darkTextPrimary
+                                            : AppColors.lightTextPrimary,
                                       ),
                                     ),
                                   ],
@@ -256,7 +287,9 @@ class _CreateStep2ReceiverScreenState extends State<CreateStep2ReceiverScreen> {
                               'Your confirmation is required to mark it returned.',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                color: isDark
+                                    ? AppColors.darkTextMuted
+                                    : AppColors.lightTextMuted,
                               ),
                             ),
                           ],
@@ -282,7 +315,11 @@ class _CreateStep2ReceiverScreenState extends State<CreateStep2ReceiverScreen> {
               padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               child: AppButton(
                 text: 'Review handover',
-                trailingIcon: const Icon(Icons.arrow_forward, size: 18, color: Colors.white),
+                trailingIcon: const Icon(
+                  Icons.arrow_forward,
+                  size: 18,
+                  color: Colors.white,
+                ),
                 onPressed: _onReview,
               ),
             ),

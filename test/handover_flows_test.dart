@@ -6,8 +6,10 @@ import 'package:handover/features/auth/welcome_auth_screen.dart';
 import 'package:handover/features/home/home_screen.dart';
 import 'package:handover/features/handovers/handovers_screen.dart';
 import 'package:handover/features/handovers/create/create_step1_item_screen.dart';
+import 'package:handover/features/handovers/create/create_step3_review_screen.dart';
 import 'package:handover/features/handovers/details/handover_detail_screen.dart';
 import 'package:handover/features/profile/profile_screen.dart';
+import 'package:handover/core/utils/date_formatter.dart';
 import 'package:handover/providers/auth_provider.dart';
 import 'package:handover/providers/handover_provider.dart';
 import 'package:handover/providers/profile_provider.dart';
@@ -21,34 +23,71 @@ Widget createTestApp(Widget child) {
       ChangeNotifierProvider(create: (_) => ProfileProvider()),
       ChangeNotifierProvider(create: (_) => HandoverProvider()),
     ],
-    child: MaterialApp(
-      home: child,
-    ),
+    child: MaterialApp(home: child),
   );
 }
 
 void main() {
-  testWidgets('OnboardingScreen renders title and navigation button', (tester) async {
+  testWidgets('OnboardingScreen renders title and navigation button', (
+    tester,
+  ) async {
     await tester.pumpWidget(createTestApp(const OnboardingScreen()));
     expect(find.text('Hand it over.\nKeep the proof.'), findsOneWidget);
     expect(find.text('Next'), findsOneWidget);
   });
 
-  testWidgets('WelcomeAuthScreen renders form fields and button', (tester) async {
+  testWidgets('WelcomeAuthScreen renders form fields and button', (
+    tester,
+  ) async {
     await tester.pumpWidget(createTestApp(const WelcomeAuthScreen()));
     expect(find.text('Your name. Your\naccountability.'), findsOneWidget);
     expect(find.text('Continue with email'), findsOneWidget);
   });
 
-  testWidgets('HomeScreen renders greeting, metrics, and active handovers', (tester) async {
+  testWidgets('HomeScreen renders greeting, metrics, and active handovers', (
+    tester,
+  ) async {
     await tester.pumpWidget(createTestApp(const HomeScreen()));
+    final expectedHeaderDate = AppDateFormatter.formatHeaderDate(
+      DateTime.now(),
+    );
+    expect(find.text(expectedHeaderDate), findsOneWidget);
     expect(find.text('Good morning, Maya.'), findsOneWidget);
     expect(find.text('Active'), findsOneWidget);
     expect(find.text('Awaiting receipt'), findsOneWidget);
     expect(find.text('Overdue'), findsWidgets);
   });
 
-  testWidgets('HandoversScreen renders segmented tabs and filter chips', (tester) async {
+  testWidgets(
+    'CreateStep3ReviewScreen displays dynamic returnDueAt selected from Step 2',
+    (tester) async {
+      final customDate = DateTime(2026, 11, 25, 15, 30);
+      await tester.pumpWidget(
+        createTestApp(
+          CreateStep3ReviewScreen(
+            data: {
+              'itemName': 'Lens Kit',
+              'category': 'Optics',
+              'identifier': 'LENS-99',
+              'receiverName': 'Jordan',
+              'receiverOrg': 'SoundLab',
+              'receiverEmail': 'jordan@soundlab.com',
+              'returnExpected': true,
+              'returnDueAt': customDate,
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('25 Nov 2026 • 3:30 PM'), findsOneWidget);
+      expect(find.text('16 Oct 2026 • 5:00 PM'), findsNothing);
+    },
+  );
+
+  testWidgets('HandoversScreen renders segmented tabs and filter chips', (
+    tester,
+  ) async {
     await tester.pumpWidget(createTestApp(const HandoversScreen()));
     expect(find.text('My handovers'), findsOneWidget);
     expect(find.text('Sent by me'), findsOneWidget);
@@ -63,14 +102,20 @@ void main() {
     expect(find.text('Continue to receiver'), findsOneWidget);
   });
 
-  testWidgets('HandoverDetailScreen renders item and custody chain', (tester) async {
-    await tester.pumpWidget(createTestApp(const HandoverDetailScreen(handoverId: 'hn_01')));
+  testWidgets('HandoverDetailScreen renders item and custody chain', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      createTestApp(const HandoverDetailScreen(handoverId: 'hn_01')),
+    );
     expect(find.text('MacBook Pro 14"'), findsWidgets);
     expect(find.text('SENDER'), findsOneWidget);
     expect(find.text('RECEIVER'), findsOneWidget);
   });
 
-  testWidgets('ProfileScreen renders user profile and appearance settings', (tester) async {
+  testWidgets('ProfileScreen renders user profile and appearance settings', (
+    tester,
+  ) async {
     await tester.pumpWidget(createTestApp(const ProfileScreen()));
     expect(find.text('Profile'), findsOneWidget);
     expect(find.text('Maya Chen'), findsOneWidget);

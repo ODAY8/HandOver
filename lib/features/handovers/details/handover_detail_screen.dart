@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/date_formatter.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/custody_stepper.dart';
 import '../../../core/widgets/status_badge.dart';
 import '../../../core/widgets/timeline_view.dart';
+import '../../../models/handover_event.dart';
 import '../../../models/handover_status.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/handover_provider.dart';
@@ -20,8 +22,7 @@ class HandoverDetailScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverById(handoverId) ??
-        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
+    final handover = provider.getHandoverById(handoverId);
 
     if (handover == null) {
       return Scaffold(
@@ -37,14 +38,20 @@ class HandoverDetailScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.inventory_2_outlined, size: 48, color: AppColors.primary),
+              const Icon(
+                Icons.inventory_2_outlined,
+                size: 48,
+                color: AppColors.primary,
+              ),
               const SizedBox(height: 12),
               Text(
                 'Handover record not found',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -58,12 +65,22 @@ class HandoverDetailScreen extends StatelessWidget {
       );
     }
 
-    final isOverdue = handover.status == HandoverStatus.overdue;
+    final isReturned = handover.status == HandoverStatus.returned;
+    final isCancelled = handover.status == HandoverStatus.cancelled;
+    final isPending = handover.status == HandoverStatus.pending;
+    final isExpired = handover.status == HandoverStatus.expired;
     final isDisputed = handover.status == HandoverStatus.disputed;
     final isReceived = handover.status == HandoverStatus.received;
-    final isPending = handover.status == HandoverStatus.pending;
-    final isReturned = handover.status == HandoverStatus.returned;
-    final isExpired = handover.status == HandoverStatus.expired;
+
+    final isNotOverdueStatus =
+        isPending || isExpired || isReturned || isCancelled;
+    final isOverdue =
+        !isNotOverdueStatus &&
+        (handover.status == HandoverStatus.overdue ||
+            (handover.status == HandoverStatus.received &&
+                handover.returnExpected &&
+                handover.returnDueAt != null &&
+                DateTime.now().isAfter(handover.returnDueAt!)));
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
@@ -74,10 +91,7 @@ class HandoverDetailScreen extends StatelessWidget {
         ),
         title: Text('${handover.token} • Handover detail'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
       ),
       body: SafeArea(
@@ -85,7 +99,10 @@ class HandoverDetailScreen extends StatelessWidget {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -93,10 +110,14 @@ class HandoverDetailScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurface : const Color(0xFFF1F5F9),
+                        color: isDark
+                            ? AppColors.darkSurface
+                            : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                          color: isDark
+                              ? AppColors.darkBorder
+                              : AppColors.lightBorder,
                         ),
                       ),
                       child: Column(
@@ -108,12 +129,15 @@ class HandoverDetailScreen extends StatelessWidget {
                                 width: 56,
                                 height: 56,
                                 decoration: BoxDecoration(
-                                  color: isDark ? AppColors.darkSurfaceLight : Colors.white,
+                                  color: isDark
+                                      ? AppColors.darkSurfaceLight
+                                      : Colors.white,
                                   borderRadius: BorderRadius.circular(14),
                                 ),
                                 padding: const EdgeInsets.all(8),
                                 child: Image.asset(
-                                  handover.photoAsset ?? 'assets/images/item_laptop.png',
+                                  handover.photoAsset ??
+                                      'assets/images/item_laptop.png',
                                   fit: BoxFit.contain,
                                   errorBuilder: (_, __, ___) => const Icon(
                                     Icons.laptop_mac_outlined,
@@ -131,7 +155,9 @@ class HandoverDetailScreen extends StatelessWidget {
                                       style: TextStyle(
                                         fontSize: 16.5,
                                         fontWeight: FontWeight.w700,
-                                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                        color: isDark
+                                            ? AppColors.darkTextPrimary
+                                            : AppColors.lightTextPrimary,
                                       ),
                                     ),
                                     const SizedBox(height: 3),
@@ -139,7 +165,9 @@ class HandoverDetailScreen extends StatelessWidget {
                                       'Space gray • ${handover.identifier}',
                                       style: TextStyle(
                                         fontSize: 12.5,
-                                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                        color: isDark
+                                            ? AppColors.darkTextSecondary
+                                            : AppColors.lightTextSecondary,
                                       ),
                                     ),
                                     const SizedBox(height: 6),
@@ -156,7 +184,9 @@ class HandoverDetailScreen extends StatelessWidget {
                               fontSize: 10.5,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1.1,
-                              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                              color: isDark
+                                  ? AppColors.darkTextMuted
+                                  : AppColors.lightTextMuted,
                             ),
                           ),
                         ],
@@ -166,100 +196,147 @@ class HandoverDetailScreen extends StatelessWidget {
 
                     // Overdue Banner
                     if (isOverdue) ...[
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: isDark ? AppColors.statusOverdueDarkBg : AppColors.statusOverdueBg,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: AppColors.statusOverdueText.withOpacity(0.3),
-                          ),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(
-                              Icons.error_outline,
-                              color: AppColors.statusOverdueText,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    '1 day, 19 hours overdue',
-                                    style: TextStyle(
-                                      color: AppColors.statusOverdueText,
-                                      fontSize: 13.5,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'As of 18 Oct 2026, 12:00 PM. This ${handover.itemName.toLowerCase()} has not been confirmed returned.',
-                                    style: TextStyle(
-                                      color: isDark ? Colors.white70 : AppColors.lightTextSecondary,
-                                      fontSize: 12,
-                                      height: 1.35,
-                                    ),
-                                  ),
-                                ],
+                      Builder(
+                        builder: (context) {
+                          final duration =
+                              AppDateFormatter.formatOverdueDuration(
+                                handover.returnDueAt,
+                                fallback: 'Overdue',
+                                notOverdueFallback: 'Overdue',
+                              );
+                          final nowFormatted = AppDateFormatter.formatDateTime(
+                            DateTime.now(),
+                          );
+                          return Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? AppColors.statusOverdueDarkBg
+                                  : AppColors.statusOverdueBg,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: AppColors.statusOverdueText.withOpacity(
+                                  0.3,
+                                ),
                               ),
                             ),
-                          ],
-                        ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  Icons.error_outline,
+                                  color: AppColors.statusOverdueText,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        duration.isNotEmpty
+                                            ? duration
+                                            : 'Overdue',
+                                        style: const TextStyle(
+                                          color: AppColors.statusOverdueText,
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'As of $nowFormatted. This ${handover.itemName.toLowerCase()} has not been confirmed returned.',
+                                        style: TextStyle(
+                                          color: isDark
+                                              ? Colors.white70
+                                              : AppColors.lightTextSecondary,
+                                          fontSize: 12,
+                                          height: 1.35,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                       const SizedBox(height: 16),
                     ],
 
                     // Disputed Banner
                     if (isDisputed) ...[
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: isDark ? AppColors.statusDisputedDarkBg : AppColors.statusDisputedBg,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: AppColors.statusDisputedText.withOpacity(0.3),
-                          ),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(
-                              Icons.warning_amber_rounded,
-                              color: AppColors.statusDisputedText,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    handover.issueReason ?? 'Item condition differs',
-                                    style: const TextStyle(
-                                      color: AppColors.statusDisputedText,
-                                      fontSize: 13.5,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'Recorded by ${handover.senderName}, 18 Oct at 12:10 PM. Receipt remains verified; return is not yet confirmed.',
-                                    style: TextStyle(
-                                      color: isDark ? Colors.white70 : AppColors.lightTextSecondary,
-                                      fontSize: 12,
-                                      height: 1.35,
-                                    ),
-                                  ),
-                                ],
+                      Builder(
+                        builder: (context) {
+                          DateTime? issueRecordedAt;
+                          for (final ev in handover.events) {
+                            if (ev.type == HandoverEventType.issueRecorded) {
+                              if (issueRecordedAt == null ||
+                                  ev.timestamp.isAfter(issueRecordedAt)) {
+                                issueRecordedAt = ev.timestamp;
+                              }
+                            }
+                          }
+                          final recordedByText = issueRecordedAt != null
+                              ? 'Recorded by ${handover.senderName}, ${AppDateFormatter.formatAtDateTime(issueRecordedAt)}'
+                              : 'Recorded by ${handover.senderName}';
+
+                          return Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? AppColors.statusDisputedDarkBg
+                                  : AppColors.statusDisputedBg,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: AppColors.statusDisputedText.withOpacity(
+                                  0.3,
+                                ),
                               ),
                             ),
-                          ],
-                        ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  Icons.warning_amber_rounded,
+                                  color: AppColors.statusDisputedText,
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        handover.issueReason ??
+                                            'Item condition differs',
+                                        style: const TextStyle(
+                                          color: AppColors.statusDisputedText,
+                                          fontSize: 13.5,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '$recordedByText. Receipt remains verified; return is not yet confirmed.',
+                                        style: TextStyle(
+                                          color: isDark
+                                              ? Colors.white70
+                                              : AppColors.lightTextSecondary,
+                                          fontSize: 12,
+                                          height: 1.35,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                       const SizedBox(height: 16),
                     ],
@@ -270,11 +347,15 @@ class HandoverDetailScreen extends StatelessWidget {
 
                     // Chain of custody / History header
                     Text(
-                      isOverdue || isDisputed ? 'Record history' : 'A clear chain of custody',
+                      isOverdue || isDisputed
+                          ? 'Record history'
+                          : 'A clear chain of custody',
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -289,7 +370,9 @@ class HandoverDetailScreen extends StatelessWidget {
                         'In ${handover.receiverName}\'s care until returned. Only your acknowledgment will complete this record.',
                         style: TextStyle(
                           fontSize: 12,
-                          color: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextMuted
+                              : AppColors.lightTextSecondary,
                           height: 1.4,
                         ),
                       ),
@@ -307,7 +390,9 @@ class HandoverDetailScreen extends StatelessWidget {
                 color: isDark ? AppColors.darkSurface : Colors.white,
                 border: Border(
                   top: BorderSide(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                 ),
               ),
@@ -317,23 +402,35 @@ class HandoverDetailScreen extends StatelessWidget {
                   if (isReceived) ...[
                     AppButton(
                       text: 'Confirm physical return',
-                      icon: const Icon(Icons.call_received, size: 18, color: Colors.white),
-                      onPressed: () => context.push('/confirm-return/${handover.id}'),
+                      icon: const Icon(
+                        Icons.call_received,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                      onPressed: () =>
+                          context.push('/confirm-return/${handover.id}'),
                     ),
                     const SizedBox(height: 8),
                     AppButton(
                       text: 'Record an issue',
                       variant: ButtonVariant.secondary,
-                      onPressed: () => context.push('/record-issue/${handover.id}'),
+                      onPressed: () =>
+                          context.push('/record-issue/${handover.id}'),
                     ),
                   ] else if (isOverdue) ...[
                     AppButton(
                       text: 'Send return reminder',
-                      icon: const Icon(Icons.notifications_active_outlined, size: 18, color: Colors.white),
+                      icon: const Icon(
+                        Icons.notifications_active_outlined,
+                        size: 18,
+                        color: Colors.white,
+                      ),
                       onPressed: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Reminder sent to ${handover.receiverName}!'),
+                            content: Text(
+                              'Reminder sent to ${handover.receiverName}!',
+                            ),
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -343,12 +440,17 @@ class HandoverDetailScreen extends StatelessWidget {
                     AppButton(
                       text: 'Confirm physical return',
                       variant: ButtonVariant.secondary,
-                      onPressed: () => context.push('/confirm-return/${handover.id}'),
+                      onPressed: () =>
+                          context.push('/confirm-return/${handover.id}'),
                     ),
                   ] else if (isDisputed) ...[
                     AppButton(
                       text: 'Resolve recorded issue',
-                      icon: const Icon(Icons.check_circle_outline, size: 18, color: Colors.white),
+                      icon: const Icon(
+                        Icons.check_circle_outline,
+                        size: 18,
+                        color: Colors.white,
+                      ),
                       onPressed: () async {
                         final auth = context.read<AuthProvider>();
                         final ok = await provider.resolveIssue(
@@ -360,14 +462,19 @@ class HandoverDetailScreen extends StatelessWidget {
                           if (ok) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Disputed issue resolved! Status is now active.'),
+                                content: Text(
+                                  'Disputed issue resolved! Status is now active.',
+                                ),
                                 behavior: SnackBarBehavior.floating,
                               ),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(provider.errorMessage ?? 'Failed to resolve issue.'),
+                                content: Text(
+                                  provider.errorMessage ??
+                                      'Failed to resolve issue.',
+                                ),
                                 backgroundColor: AppColors.error,
                                 behavior: SnackBarBehavior.floating,
                               ),
@@ -380,25 +487,97 @@ class HandoverDetailScreen extends StatelessWidget {
                     AppButton(
                       text: 'Confirm physical return',
                       variant: ButtonVariant.secondary,
-                      onPressed: () => context.push('/confirm-return/${handover.id}'),
+                      onPressed: () =>
+                          context.push('/confirm-return/${handover.id}'),
                     ),
                   ] else if (isPending) ...[
                     AppButton(
                       text: 'Show QR code',
-                      icon: const Icon(Icons.qr_code, size: 18, color: Colors.white),
-                      onPressed: () => context.push('/share-qr/${handover.token}'),
+                      icon: const Icon(
+                        Icons.qr_code,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                      onPressed: () =>
+                          context.push('/share-qr/${handover.token}'),
+                    ),
+                    const SizedBox(height: 8),
+                    AppButton(
+                      text: 'Cancel handover',
+                      variant: ButtonVariant.secondary,
+                      isLoading: provider.isSubmitting,
+                      onPressed: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Cancel handover?'),
+                            content: const Text(
+                              'This will invalidate the pending handover request and QR code.',
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(false),
+                                child: const Text('Keep pending'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(true),
+                                child: const Text(
+                                  'Cancel handover',
+                                  style: TextStyle(color: AppColors.error),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirm == true && context.mounted) {
+                          final auth = context.read<AuthProvider>();
+                          final ok = await provider.cancelHandover(
+                            handover.id,
+                            userId: auth.user.id,
+                            userName: auth.user.fullName,
+                            reason: 'Cancelled by sender',
+                          );
+                          if (context.mounted) {
+                            if (ok) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Handover cancelled.'),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    provider.errorMessage ??
+                                        'Failed to cancel handover.',
+                                  ),
+                                  backgroundColor: AppColors.error,
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            }
+                          }
+                        }
+                      },
                     ),
                   ] else if (isExpired) ...[
                     AppButton(
                       text: 'View expired code',
                       variant: ButtonVariant.secondary,
-                      onPressed: () => context.push('/expired-code/${handover.id}'),
+                      onPressed: () =>
+                          context.push('/expired-code/${handover.id}'),
                     ),
                   ] else if (isReturned) ...[
                     AppButton(
                       text: 'View completed receipt',
-                      icon: const Icon(Icons.receipt_long, size: 18, color: Colors.white),
-                      onPressed: () => context.push('/completed/${handover.id}'),
+                      icon: const Icon(
+                        Icons.receipt_long,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                      onPressed: () =>
+                          context.push('/completed/${handover.id}'),
                     ),
                   ],
                 ],

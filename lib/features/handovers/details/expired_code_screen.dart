@@ -3,8 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/date_formatter.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/status_badge.dart';
+import '../../../models/handover_event.dart';
 import '../../../models/handover_status.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/handover_provider.dart';
@@ -19,8 +21,7 @@ class ExpiredCodeScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverById(handoverId) ??
-        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
+    final handover = provider.getHandoverById(handoverId);
 
     if (handover == null) {
       return Scaffold(
@@ -52,7 +53,9 @@ class ExpiredCodeScreen extends StatelessWidget {
               behavior: SnackBarBehavior.floating,
             ),
           );
-          context.pushReplacement('/share-qr/${updated?.token ?? handover.token}');
+          context.pushReplacement(
+            '/share-qr/${updated?.token ?? handover.token}',
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -74,10 +77,7 @@ class ExpiredCodeScreen extends StatelessWidget {
         ),
         title: Text('${handover.token} • Confirmation code'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
       ),
       body: SafeArea(
@@ -92,7 +92,9 @@ class ExpiredCodeScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               const SizedBox(height: 6),
@@ -102,7 +104,9 @@ class ExpiredCodeScreen extends StatelessWidget {
                 'The item is still awaiting acknowledgment. No receipt has been confirmed.',
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                 ),
               ),
               const SizedBox(height: 22),
@@ -115,7 +119,9 @@ class ExpiredCodeScreen extends StatelessWidget {
                   color: isDark ? AppColors.darkSurface : Colors.white,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                 ),
                 child: Column(
@@ -148,7 +154,9 @@ class ExpiredCodeScreen extends StatelessWidget {
                       'Illustrative code • expired design state',
                       style: TextStyle(
                         fontSize: 11,
-                        color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                        color: isDark
+                            ? AppColors.darkTextMuted
+                            : AppColors.lightTextMuted,
                       ),
                     ),
                   ],
@@ -160,10 +168,14 @@ class ExpiredCodeScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSurface : const Color(0xFFF8FAFC),
+                  color: isDark
+                      ? AppColors.darkSurface
+                      : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                 ),
                 child: Row(
@@ -172,7 +184,9 @@ class ExpiredCodeScreen extends StatelessWidget {
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurfaceLight : Colors.white,
+                        color: isDark
+                            ? AppColors.darkSurfaceLight
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       padding: const EdgeInsets.all(8),
@@ -195,7 +209,9 @@ class ExpiredCodeScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 15.5,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -203,7 +219,9 @@ class ExpiredCodeScreen extends StatelessWidget {
                             '${handover.senderName}  →  ${handover.receiverName}',
                             style: TextStyle(
                               fontSize: 12.5,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -211,7 +229,9 @@ class ExpiredCodeScreen extends StatelessWidget {
                             'Reference ${handover.token} • ${handover.identifier}',
                             style: TextStyle(
                               fontSize: 11.5,
-                              color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                              color: isDark
+                                  ? AppColors.darkTextMuted
+                                  : AppColors.lightTextMuted,
                             ),
                           ),
                         ],
@@ -223,13 +243,36 @@ class ExpiredCodeScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               // Footnote
-              Text(
-                'Expired 15 Oct 2026 at 9:00 AM. Code expiry is not a cancellation and does not affect any previously confirmed receipt.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary,
-                  height: 1.4,
-                ),
+              Builder(
+                builder: (context) {
+                  DateTime? createdDate = handover.createdAt;
+                  if (createdDate == null) {
+                    for (final ev in handover.events) {
+                      if (ev.type == HandoverEventType.created) {
+                        createdDate = ev.timestamp;
+                        break;
+                      }
+                    }
+                  }
+                  final expiryFormatted = AppDateFormatter.formatQrExpiry(
+                    createdDate,
+                    fallback: '',
+                  );
+                  final footnoteText = expiryFormatted.isNotEmpty
+                      ? 'Expired $expiryFormatted. Code expiry is not a cancellation and does not affect any previously confirmed receipt.'
+                      : 'Code expired. Code expiry is not a cancellation and does not affect any previously confirmed receipt.';
+
+                  return Text(
+                    footnoteText,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDark
+                          ? AppColors.darkTextMuted
+                          : AppColors.lightTextSecondary,
+                      height: 1.4,
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 28),
 

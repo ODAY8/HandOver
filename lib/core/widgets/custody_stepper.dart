@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../models/handover.dart';
 import '../../models/handover_status.dart';
 import '../constants/app_colors.dart';
+import '../utils/date_formatter.dart';
 
 class CustodyStepperCard extends StatelessWidget {
   final Handover handover;
@@ -11,7 +12,19 @@ class CustodyStepperCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isOverdue = handover.status == HandoverStatus.overdue;
+    final isNotOverdueStatus =
+        handover.status == HandoverStatus.pending ||
+        handover.status == HandoverStatus.expired ||
+        handover.status == HandoverStatus.returned ||
+        handover.status == HandoverStatus.cancelled;
+
+    final isOverdue =
+        !isNotOverdueStatus &&
+        (handover.status == HandoverStatus.overdue ||
+            (handover.status == HandoverStatus.received &&
+                handover.returnExpected &&
+                handover.returnDueAt != null &&
+                DateTime.now().isAfter(handover.returnDueAt!)));
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -35,7 +48,9 @@ class CustodyStepperCard extends StatelessWidget {
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.2,
-                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                  color: isDark
+                      ? AppColors.darkTextMuted
+                      : AppColors.lightTextMuted,
                 ),
               ),
               Row(
@@ -43,7 +58,9 @@ class CustodyStepperCard extends StatelessWidget {
                   Icon(
                     Icons.arrow_forward,
                     size: 13,
-                    color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                    color: isDark
+                        ? AppColors.darkTextMuted
+                        : AppColors.lightTextMuted,
                   ),
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8),
@@ -60,7 +77,9 @@ class CustodyStepperCard extends StatelessWidget {
                   Icon(
                     Icons.arrow_forward,
                     size: 13,
-                    color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                    color: isDark
+                        ? AppColors.darkTextMuted
+                        : AppColors.lightTextMuted,
                   ),
                 ],
               ),
@@ -70,7 +89,9 @@ class CustodyStepperCard extends StatelessWidget {
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.2,
-                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                  color: isDark
+                      ? AppColors.darkTextMuted
+                      : AppColors.lightTextMuted,
                 ),
               ),
             ],
@@ -91,7 +112,9 @@ class CustodyStepperCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -99,7 +122,9 @@ class CustodyStepperCard extends StatelessWidget {
                       'You • ${handover.senderOrg}',
                       style: TextStyle(
                         fontSize: 12,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                       ),
                     ),
                   ],
@@ -116,7 +141,9 @@ class CustodyStepperCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                       textAlign: TextAlign.right,
                     ),
@@ -125,7 +152,9 @@ class CustodyStepperCard extends StatelessWidget {
                       handover.receiverOrg,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                       ),
                       textAlign: TextAlign.right,
                     ),
@@ -151,15 +180,19 @@ class CustodyStepperCard extends StatelessWidget {
                   'Received',
                   style: TextStyle(
                     fontSize: 13,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
                   ),
                 ),
                 Text(
-                  '14 Oct 2026 • 9:12 AM',
+                  AppDateFormatter.formatDateTime(handover.receivedAt),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    color: isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
                   ),
                 ),
               ],
@@ -175,15 +208,21 @@ class CustodyStepperCard extends StatelessWidget {
                   isOverdue ? 'Return was due' : 'Return due',
                   style: TextStyle(
                     fontSize: 13,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color: isDark
+                        ? AppColors.darkTextSecondary
+                        : AppColors.lightTextSecondary,
                   ),
                 ),
                 Text(
-                  '16 Oct 2026 • 5:00 PM',
+                  AppDateFormatter.formatDateTime(handover.returnDueAt),
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: isOverdue ? AppColors.statusOverdueText : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
+                    color: isOverdue
+                        ? AppColors.statusOverdueText
+                        : (isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary),
                   ),
                 ),
               ],
@@ -196,7 +235,9 @@ class CustodyStepperCard extends StatelessWidget {
               handover.notes!,
               style: TextStyle(
                 fontSize: 12.5,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                color: isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
                 fontStyle: FontStyle.italic,
               ),
             ),

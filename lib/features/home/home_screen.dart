@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/date_formatter.dart';
 import '../../core/widgets/handover_card.dart';
 import '../../core/widgets/segmented_tab_bar.dart';
 import '../../providers/auth_provider.dart';
@@ -29,9 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final auth = context.read<AuthProvider>();
     if (auth.isAuthenticated && auth.user.id.isNotEmpty) {
       context.read<HandoverProvider>().loadHandovers(
-            userId: auth.user.id,
-            userEmail: auth.user.email,
-          );
+        userId: auth.user.id,
+        userEmail: auth.user.email,
+      );
     }
   }
 
@@ -67,12 +68,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'WEDNESDAY, 14 OCTOBER',
+                          AppDateFormatter.formatHeaderDate(DateTime.now()),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1.2,
-                            color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                            color: isDark
+                                ? AppColors.darkTextMuted
+                                : AppColors.lightTextMuted,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -81,7 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w700,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                       ],
@@ -93,7 +98,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: isDark ? AppColors.darkSurfaceLight : AppColors.primaryLight,
+                          color: isDark
+                              ? AppColors.darkSurfaceLight
+                              : AppColors.primaryLight,
                           shape: BoxShape.circle,
                         ),
                         child: Center(
@@ -128,10 +135,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 // Segmented Tab Bar: Sent by me | Received by me
                 SegmentedTabBar(
-                  selectedIndex: handoverProv.currentTab == HandoverTab.sentByMe ? 0 : 1,
+                  selectedIndex: handoverProv.currentTab == HandoverTab.sentByMe
+                      ? 0
+                      : 1,
                   tabs: const ['Sent by me', 'Received by me'],
                   onTabSelected: (index) {
-                    handoverProv.setTab(index == 0 ? HandoverTab.sentByMe : HandoverTab.receivedByMe);
+                    handoverProv.setTab(
+                      index == 0
+                          ? HandoverTab.sentByMe
+                          : HandoverTab.receivedByMe,
+                    );
                   },
                 ),
                 const SizedBox(height: 22),
@@ -145,7 +158,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     GestureDetector(
@@ -168,7 +183,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 32),
                     child: Center(
-                      child: CircularProgressIndicator(color: AppColors.primary),
+                      child: CircularProgressIndicator(
+                        color: AppColors.primary,
+                      ),
                     ),
                   )
                 else if (activeList.isEmpty)
@@ -179,13 +196,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: isDark ? AppColors.darkSurface : Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                        color: isDark
+                            ? AppColors.darkBorder
+                            : AppColors.lightBorder,
                       ),
                     ),
                     child: Text(
                       'No active handovers right now.',
                       style: TextStyle(
-                        color: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary,
+                        color: isDark
+                            ? AppColors.darkTextMuted
+                            : AppColors.lightTextSecondary,
                         fontSize: 14,
                       ),
                     ),
@@ -200,7 +221,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       final item = activeList[index];
                       return HandoverCard(
                         handover: item,
-                        onTap: () => context.push('/handover-detail/${item.id}'),
+                        onTap: () =>
+                            context.push('/handover-detail/${item.id}'),
                       );
                     },
                   ),

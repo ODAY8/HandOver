@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../../core/utils/date_formatter.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/handover_provider.dart';
@@ -12,7 +13,8 @@ class CreateStep3ReviewScreen extends StatefulWidget {
   const CreateStep3ReviewScreen({super.key, required this.data});
 
   @override
-  State<CreateStep3ReviewScreen> createState() => _CreateStep3ReviewScreenState();
+  State<CreateStep3ReviewScreen> createState() =>
+      _CreateStep3ReviewScreenState();
 }
 
 class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
@@ -31,12 +33,14 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
         category: widget.data['category'] ?? 'Electronics',
         identifier: widget.data['identifier'] ?? 'NL-MBP-014',
         description: widget.data['description'] ?? '',
-        photoAsset: widget.data['photoAsset'] ?? 'assets/images/item_laptop.png',
+        photoAsset:
+            widget.data['photoAsset'] ?? 'assets/images/item_laptop.png',
         senderName: auth.user.fullName,
         senderOrg: auth.user.organization,
         receiverName: widget.data['receiverName'] ?? 'Jordan Lee',
         receiverOrg: widget.data['receiverOrg'] ?? 'Northline Studio',
-        receiverEmail: widget.data['receiverEmail'] ?? 'jordan@northline.studio',
+        receiverEmail:
+            widget.data['receiverEmail'] ?? 'jordan@northline.studio',
         receiverPhone: widget.data['receiverPhone'] as String?,
         returnExpected: widget.data['returnExpected'] ?? true,
         returnDueAt: widget.data['returnDueAt'] as DateTime?,
@@ -73,7 +77,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
     final receiverName = widget.data['receiverName'] ?? 'Jordan Lee';
     final receiverOrg = widget.data['receiverOrg'] ?? 'Northline Studio';
     final returnExpected = widget.data['returnExpected'] == true;
-    final notes = widget.data['notes'] as String? ?? 'For the studio workshop. Please return with the charger.';
+    final notes =
+        widget.data['notes'] as String? ??
+        'For the studio workshop. Please return with the charger.';
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBg : Colors.white,
@@ -84,10 +90,7 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
         ),
         title: const Text('Create handover'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
       ),
       body: SafeArea(
@@ -134,7 +137,10 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
             // Review Content
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -156,7 +162,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
-                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                        color: isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -165,10 +173,14 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurface : const Color(0xFFF8FAFC),
+                        color: isDark
+                            ? AppColors.darkSurface
+                            : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(
-                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                          color: isDark
+                              ? AppColors.darkBorder
+                              : AppColors.lightBorder,
                         ),
                       ),
                       child: Row(
@@ -177,7 +189,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                             width: 56,
                             height: 56,
                             decoration: BoxDecoration(
-                              color: isDark ? AppColors.darkSurfaceLight : Colors.white,
+                              color: isDark
+                                  ? AppColors.darkSurfaceLight
+                                  : Colors.white,
                               borderRadius: BorderRadius.circular(14),
                             ),
                             padding: const EdgeInsets.all(8),
@@ -200,7 +214,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
-                                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                    color: isDark
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.lightTextPrimary,
                                   ),
                                 ),
                                 const SizedBox(height: 3),
@@ -208,7 +224,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                   'Space gray • $identifier',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.lightTextSecondary,
                                   ),
                                 ),
                               ],
@@ -226,7 +244,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                         color: isDark ? AppColors.darkSurface : Colors.white,
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(
-                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                          color: isDark
+                              ? AppColors.darkBorder
+                              : AppColors.lightBorder,
                         ),
                       ),
                       child: Column(
@@ -242,14 +262,24 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 1.2,
-                                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                  color: isDark
+                                      ? AppColors.darkTextMuted
+                                      : AppColors.lightTextMuted,
                                 ),
                               ),
                               Row(
                                 children: [
-                                  Icon(Icons.arrow_forward, size: 12, color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted),
+                                  Icon(
+                                    Icons.arrow_forward,
+                                    size: 12,
+                                    color: isDark
+                                        ? AppColors.darkTextMuted
+                                        : AppColors.lightTextMuted,
+                                  ),
                                   const Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 6),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                    ),
                                     child: Text(
                                       'ITEM',
                                       style: TextStyle(
@@ -260,7 +290,13 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                       ),
                                     ),
                                   ),
-                                  Icon(Icons.arrow_forward, size: 12, color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted),
+                                  Icon(
+                                    Icons.arrow_forward,
+                                    size: 12,
+                                    color: isDark
+                                        ? AppColors.darkTextMuted
+                                        : AppColors.lightTextMuted,
+                                  ),
                                 ],
                               ),
                               Text(
@@ -269,7 +305,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 1.2,
-                                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted,
+                                  color: isDark
+                                      ? AppColors.darkTextMuted
+                                      : AppColors.lightTextMuted,
                                 ),
                               ),
                             ],
@@ -289,7 +327,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                       style: TextStyle(
                                         fontSize: 14.5,
                                         fontWeight: FontWeight.w600,
-                                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                        color: isDark
+                                            ? AppColors.darkTextPrimary
+                                            : AppColors.lightTextPrimary,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
@@ -297,7 +337,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                       'You • ${auth.user.organization}',
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                        color: isDark
+                                            ? AppColors.darkTextSecondary
+                                            : AppColors.lightTextSecondary,
                                       ),
                                     ),
                                   ],
@@ -312,7 +354,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                       style: TextStyle(
                                         fontSize: 14.5,
                                         fontWeight: FontWeight.w600,
-                                        color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                        color: isDark
+                                            ? AppColors.darkTextPrimary
+                                            : AppColors.lightTextPrimary,
                                       ),
                                       textAlign: TextAlign.right,
                                     ),
@@ -321,7 +365,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                       receiverOrg,
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                        color: isDark
+                                            ? AppColors.darkTextSecondary
+                                            : AppColors.lightTextSecondary,
                                       ),
                                       textAlign: TextAlign.right,
                                     ),
@@ -333,7 +379,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                           const SizedBox(height: 16),
                           Divider(
                             height: 1,
-                            color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                            color: isDark
+                                ? AppColors.darkBorder
+                                : AppColors.lightBorder,
                           ),
                           const SizedBox(height: 14),
 
@@ -345,7 +393,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                 'Return expected',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                  color: isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.lightTextSecondary,
                                 ),
                               ),
                               Text(
@@ -353,7 +403,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                  color: isDark
+                                      ? AppColors.darkTextPrimary
+                                      : AppColors.lightTextPrimary,
                                 ),
                               ),
                             ],
@@ -367,15 +419,21 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                   'Return by',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.lightTextSecondary,
                                   ),
                                 ),
                                 Text(
-                                  '16 Oct 2026 • 5:00 PM',
+                                  AppDateFormatter.formatDateTime(
+                                    widget.data['returnDueAt'] as DateTime?,
+                                  ),
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                    color: isDark
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.lightTextPrimary,
                                   ),
                                 ),
                               ],
@@ -387,7 +445,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                               notes,
                               style: TextStyle(
                                 fontSize: 12.5,
-                                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                color: isDark
+                                    ? AppColors.darkTextSecondary
+                                    : AppColors.lightTextSecondary,
                               ),
                             ),
                           ],
@@ -400,7 +460,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurfaceLight : const Color(0xFFEFF6FF),
+                        color: isDark
+                            ? AppColors.darkSurfaceLight
+                            : const Color(0xFFEFF6FF),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
@@ -429,7 +491,9 @@ class _CreateStep3ReviewScreenState extends State<CreateStep3ReviewScreen> {
                                   '$receiverName must scan the QR and confirm physical receipt before this is marked Received.',
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.lightTextSecondary,
                                     height: 1.35,
                                   ),
                                 ),

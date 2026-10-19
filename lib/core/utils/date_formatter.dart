@@ -7,12 +7,18 @@ import 'package:intl/intl.dart';
 class AppDateFormatter {
   const AppDateFormatter._();
 
-  static final DateFormat _dateTimeFormat = DateFormat('d MMM yyyy • h:mm a', 'en_US');
+  static final DateFormat _dateTimeFormat = DateFormat(
+    'd MMM yyyy • h:mm a',
+    'en_US',
+  );
   static final DateFormat _dateOnlyFormat = DateFormat('d MMM yyyy', 'en_US');
   static final DateFormat _shortDateFormat = DateFormat('d MMM', 'en_US');
   static final DateFormat _timeOnlyFormat = DateFormat('h:mm a', 'en_US');
   static final DateFormat _atDateFormat = DateFormat('d MMM yyyy', 'en_US');
-  static final DateFormat _headerDateFormat = DateFormat('EEEE, d MMMM', 'en_US');
+  static final DateFormat _headerDateFormat = DateFormat(
+    'EEEE, d MMMM',
+    'en_US',
+  );
 
   /// Formats date and time: e.g. "16 Oct 2026 • 5:00 PM"
   /// Safe null handling: returns [fallback] if [dateTime] is null.

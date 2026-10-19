@@ -19,8 +19,7 @@ class ReceiptConfirmedScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverById(handoverId) ??
-        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
+    final handover = provider.getHandoverById(handoverId);
 
     if (handover == null) {
       return Scaffold(
@@ -45,10 +44,7 @@ class ReceiptConfirmedScreen extends StatelessWidget {
         ),
         title: Text('${handover.token} • Verified receipt'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
       ),
       body: SafeArea(
@@ -81,7 +77,9 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                 ),
               ),
               const SizedBox(height: 6),
@@ -91,7 +89,9 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                 '${handover.receiverName}, this item is now recorded in your care.',
                 style: TextStyle(
                   fontSize: 14,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextSecondary
+                      : AppColors.lightTextSecondary,
                 ),
               ),
               const SizedBox(height: 22),
@@ -103,7 +103,9 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                   color: isDark ? AppColors.darkSurface : Colors.white,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                 ),
                 child: Column(
@@ -117,7 +119,9 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                         const StatusBadge(status: HandoverStatus.received),
@@ -128,13 +132,17 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                       '${handover.identifier} • ${handover.receiverOrg}',
                       style: TextStyle(
                         fontSize: 12.5,
-                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                        color: isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                       ),
                     ),
                     const SizedBox(height: 14),
                     Divider(
                       height: 1,
-                      color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                      color: isDark
+                          ? AppColors.darkBorder
+                          : AppColors.lightBorder,
                     ),
                     const SizedBox(height: 14),
                     Row(
@@ -144,7 +152,9 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                           'Sender',
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                         ),
                         Text(
@@ -152,7 +162,9 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                       ],
@@ -165,7 +177,9 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                           'Receiver',
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                         ),
                         Text(
@@ -173,7 +187,9 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                       ],
@@ -186,7 +202,9 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                           'Confirmed',
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                         ),
                         Builder(
@@ -195,8 +213,10 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                             if (confirmedAt == null) {
                               for (final ev in handover.events) {
                                 if (ev.type == HandoverEventType.received) {
-                                  confirmedAt = ev.timestamp;
-                                  break;
+                                  if (confirmedAt == null ||
+                                      ev.timestamp.isAfter(confirmedAt)) {
+                                    confirmedAt = ev.timestamp;
+                                  }
                                 }
                               }
                             }
@@ -205,7 +225,9 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 13.5,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                                color: isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary,
                               ),
                             );
                           },
@@ -221,7 +243,9 @@ class ReceiptConfirmedScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSurfaceLight : const Color(0xFFEFF6FF),
+                  color: isDark
+                      ? AppColors.darkSurfaceLight
+                      : const Color(0xFFEFF6FF),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
@@ -250,7 +274,9 @@ class ReceiptConfirmedScreen extends StatelessWidget {
                             'Return it by 16 Oct at 5:00 PM. ${handover.senderName} must confirm it is back in her hands to close the record.',
                             style: TextStyle(
                               fontSize: 12.5,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                               height: 1.35,
                             ),
                           ),
@@ -265,8 +291,13 @@ class ReceiptConfirmedScreen extends StatelessWidget {
               // Button
               AppButton(
                 text: 'View handover & return date',
-                trailingIcon: const Icon(Icons.arrow_forward, size: 18, color: Colors.white),
-                onPressed: () => context.pushReplacement('/handover-detail/${handover.id}'),
+                trailingIcon: const Icon(
+                  Icons.arrow_forward,
+                  size: 18,
+                  color: Colors.white,
+                ),
+                onPressed: () =>
+                    context.pushReplacement('/handover-detail/${handover.id}'),
               ),
               const SizedBox(height: 16),
             ],

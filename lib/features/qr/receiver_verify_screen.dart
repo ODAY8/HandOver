@@ -24,9 +24,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final provider = context.watch<HandoverProvider>();
 
-    final handover = provider.getHandoverByToken(widget.token) ??
-        provider.getHandoverById(widget.token) ??
-        (provider.allHandovers.isNotEmpty ? provider.allHandovers.first : null);
+    final handover =
+        provider.getHandoverByToken(widget.token) ??
+        provider.getHandoverById(widget.token);
 
     if (handover == null) {
       return Scaffold(
@@ -56,11 +56,68 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(provider.errorMessage ?? 'Failed to confirm receipt.'),
+              content: Text(
+                provider.errorMessage ?? 'Failed to confirm receipt.',
+              ),
               backgroundColor: AppColors.error,
               behavior: SnackBarBehavior.floating,
             ),
           );
+        }
+      }
+    }
+
+    void onDecline() async {
+      final confirm = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Decline handover?'),
+          content: const Text(
+            'Are you sure you want to decline this handover? The sender will be notified that custody was not accepted.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Keep reviewing'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text(
+                'Decline',
+                style: TextStyle(color: AppColors.error),
+              ),
+            ),
+          ],
+        ),
+      );
+      if (confirm == true && context.mounted) {
+        final auth = context.read<AuthProvider>();
+        final ok = await provider.cancelHandover(
+          handover.id,
+          userId: auth.user.id,
+          userName: auth.user.fullName,
+          reason: 'Declined by receiver',
+        );
+        if (context.mounted) {
+          if (ok) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Handover declined.'),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+            context.go('/handovers');
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  provider.errorMessage ?? 'Failed to decline handover.',
+                ),
+                backgroundColor: AppColors.error,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
         }
       }
     }
@@ -74,10 +131,7 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
         ),
         title: Text('${handover.token} • Review receipt'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.more_horiz),
-            onPressed: () {},
-          ),
+          IconButton(icon: const Icon(Icons.more_horiz), onPressed: () {}),
         ],
       ),
       body: SafeArea(
@@ -92,7 +146,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                 style: TextStyle(
                   fontSize: 26,
                   fontWeight: FontWeight.w700,
-                  color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                  color: isDark
+                      ? AppColors.darkTextPrimary
+                      : AppColors.lightTextPrimary,
                   height: 1.2,
                 ),
               ),
@@ -102,10 +158,14 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkSurface : const Color(0xFFF8FAFC),
+                  color: isDark
+                      ? AppColors.darkSurface
+                      : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                 ),
                 child: Row(
@@ -114,7 +174,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                       width: 56,
                       height: 56,
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurfaceLight : Colors.white,
+                        color: isDark
+                            ? AppColors.darkSurfaceLight
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       padding: const EdgeInsets.all(8),
@@ -137,7 +199,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
                             ),
                           ),
                           const SizedBox(height: 3),
@@ -145,7 +209,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                             'Space gray • ${handover.identifier}',
                             style: TextStyle(
                               fontSize: 13,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                             ),
                           ),
                         ],
@@ -163,7 +229,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                   color: isDark ? AppColors.darkSurface : Colors.white,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    color: isDark
+                        ? AppColors.darkBorder
+                        : AppColors.lightBorder,
                   ),
                 ),
                 child: Column(
@@ -176,7 +244,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                           'From',
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                         ),
                         Text(
@@ -184,7 +254,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                           style: TextStyle(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                       ],
@@ -197,7 +269,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                           'To you',
                           style: TextStyle(
                             fontSize: 13,
-                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            color: isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
                           ),
                         ),
                         Text(
@@ -205,7 +279,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                           style: TextStyle(
                             fontSize: 13.5,
                             fontWeight: FontWeight.w600,
-                            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                            color: isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
                           ),
                         ),
                       ],
@@ -219,15 +295,21 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                             'Return by',
                             style: TextStyle(
                               fontSize: 13,
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                             ),
                           ),
                           Text(
-                            AppDateFormatter.formatDateTime(handover.returnDueAt),
+                            AppDateFormatter.formatDateTime(
+                              handover.returnDueAt,
+                            ),
                             style: TextStyle(
                               fontSize: 13.5,
                               fontWeight: FontWeight.w600,
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              color: isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
                             ),
                           ),
                         ],
@@ -239,7 +321,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                         handover.notes!,
                         style: TextStyle(
                           fontSize: 12.5,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
@@ -253,12 +337,21 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
               GestureDetector(
                 onTap: () => setState(() => _hasReceived = !_hasReceived),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkSurfaceLight : const Color(0xFFEEF2FF),
+                    color: isDark
+                        ? AppColors.darkSurfaceLight
+                        : const Color(0xFFEEF2FF),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: _hasReceived ? AppColors.primary : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                      color: _hasReceived
+                          ? AppColors.primary
+                          : (isDark
+                                ? AppColors.darkBorder
+                                : AppColors.lightBorder),
                       width: 1.2,
                     ),
                   ),
@@ -268,15 +361,25 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                         width: 22,
                         height: 22,
                         decoration: BoxDecoration(
-                          color: _hasReceived ? AppColors.primary : Colors.transparent,
+                          color: _hasReceived
+                              ? AppColors.primary
+                              : Colors.transparent,
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
-                            color: _hasReceived ? AppColors.primary : (isDark ? AppColors.darkTextMuted : AppColors.lightTextMuted),
+                            color: _hasReceived
+                                ? AppColors.primary
+                                : (isDark
+                                      ? AppColors.darkTextMuted
+                                      : AppColors.lightTextMuted),
                             width: 1.5,
                           ),
                         ),
                         child: _hasReceived
-                            ? const Icon(Icons.check, size: 16, color: Colors.white)
+                            ? const Icon(
+                                Icons.check,
+                                size: 16,
+                                color: Colors.white,
+                              )
                             : null,
                       ),
                       const SizedBox(width: 12),
@@ -285,7 +388,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                         style: TextStyle(
                           fontSize: 14.5,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          color: isDark
+                              ? AppColors.darkTextPrimary
+                              : AppColors.lightTextPrimary,
                         ),
                       ),
                     ],
@@ -299,7 +404,9 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
                 'You’ve scanned the code, not confirmed receipt. Continue only if you physically have this item.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: isDark ? AppColors.darkTextMuted : AppColors.lightTextSecondary,
+                  color: isDark
+                      ? AppColors.darkTextMuted
+                      : AppColors.lightTextSecondary,
                   height: 1.35,
                 ),
               ),
@@ -316,7 +423,8 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
               AppButton(
                 text: 'Decline handover',
                 variant: ButtonVariant.secondary,
-                onPressed: () => context.pop(),
+                isLoading: provider.isSubmitting,
+                onPressed: onDecline,
               ),
               const SizedBox(height: 16),
             ],
