@@ -18,6 +18,30 @@ class ReceiverVerifyScreen extends StatefulWidget {
 
 class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
   bool _hasReceived = false;
+  bool _isFetching = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final provider = context.read<HandoverProvider>();
+      final existing =
+          provider.getHandoverByToken(widget.token) ??
+          provider.getHandoverById(widget.token);
+      if (existing == null && mounted) {
+        setState(() => _isFetching = true);
+        final auth = context.read<AuthProvider>();
+        await provider.fetchHandoverByToken(
+          widget.token,
+          userId: auth.user.id,
+          userEmail: auth.user.email,
+        );
+        if (mounted) {
+          setState(() => _isFetching = false);
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +51,20 @@ class _ReceiverVerifyScreenState extends State<ReceiverVerifyScreen> {
     final handover =
         provider.getHandoverByToken(widget.token) ??
         provider.getHandoverById(widget.token);
+
+    if (_isFetching) {
+      return Scaffold(
+        backgroundColor: isDark ? AppColors.darkBg : AppColors.lightBg,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.pop(),
+          ),
+          title: const Text('Review receipt'),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
     if (handover == null) {
       return Scaffold(

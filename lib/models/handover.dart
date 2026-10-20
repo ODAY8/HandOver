@@ -134,8 +134,10 @@ class Handover {
 
     final id = row['id']?.toString() ?? '';
     final shortId = id.length >= 4 ? id.substring(0, 4).toUpperCase() : '1048';
-    final token = meta['token']?.toString() ?? 'HN-$shortId';
-    final identifier = meta['identifier']?.toString() ??
+    final token =
+        row['token']?.toString() ?? meta['token']?.toString() ?? 'HN-$shortId';
+    final identifier =
+        meta['identifier']?.toString() ??
         (id.length >= 8 ? id.substring(0, 8).toUpperCase() : 'ITM-$shortId');
 
     final returnDueAt = row['expected_return_at'] != null
@@ -159,10 +161,11 @@ class Handover {
     // Parse joined events if present
     List<HandoverEvent> events = [];
     if (row['handover_events'] is List) {
-      events = (row['handover_events'] as List)
-          .map((e) => HandoverEvent.fromRow(e as Map<String, dynamic>))
-          .toList()
-        ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+      events =
+          (row['handover_events'] as List)
+              .map((e) => HandoverEvent.fromRow(e as Map<String, dynamic>))
+              .toList()
+            ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
     }
 
     // Default CREATED event if none recorded yet
@@ -179,7 +182,8 @@ class Handover {
     }
 
     final ownerId = row['owner_id']?.toString();
-    final senderName = meta['sender_name']?.toString() ??
+    final senderName =
+        meta['sender_name']?.toString() ??
         (ownerId != null && ownerId == currentUserId ? 'You' : 'Sender');
 
     return Handover(
@@ -190,7 +194,8 @@ class Handover {
       category: row['item_type']?.toString() ?? 'Equipment',
       identifier: identifier,
       description: row['description']?.toString() ?? '',
-      photoAsset: row['photo_url']?.toString() ?? 'assets/images/item_laptop.png',
+      photoAsset:
+          row['photo_url']?.toString() ?? 'assets/images/item_laptop.png',
       senderName: senderName,
       senderOrg: meta['sender_org']?.toString() ?? 'Northline Studio',
       receiverName: row['recipient_name']?.toString() ?? 'Recipient',
@@ -226,18 +231,23 @@ class Handover {
 
     return {
       'owner_id': ownerId,
+      'token': token,
       'item_name': itemName,
       'item_type': category,
       'description': description,
       'photo_url': photoAsset,
       'recipient_name': receiverName,
       'recipient_email': receiverEmail,
-      if (receiverPhone != null && receiverPhone!.isNotEmpty) 'recipient_phone': receiverPhone,
+      if (receiverPhone != null && receiverPhone!.isNotEmpty)
+        'recipient_phone': receiverPhone,
       'purpose': jsonEncode(meta),
       'status': status.toDbString(),
-      if (returnDueAt != null) 'expected_return_at': returnDueAt!.toUtc().toIso8601String(),
-      if (receivedAt != null) 'received_at': receivedAt!.toUtc().toIso8601String(),
-      if (returnedAt != null) 'returned_at': returnedAt!.toUtc().toIso8601String(),
+      if (returnDueAt != null)
+        'expected_return_at': returnDueAt!.toUtc().toIso8601String(),
+      if (receivedAt != null)
+        'received_at': receivedAt!.toUtc().toIso8601String(),
+      if (returnedAt != null)
+        'returned_at': returnedAt!.toUtc().toIso8601String(),
     };
   }
 }

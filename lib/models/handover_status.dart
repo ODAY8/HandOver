@@ -33,15 +33,25 @@ enum HandoverStatus {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     switch (this) {
       case HandoverStatus.received:
-        return isDark ? AppColors.statusReceivedDarkBg : AppColors.statusReceivedBg;
+        return isDark
+            ? AppColors.statusReceivedDarkBg
+            : AppColors.statusReceivedBg;
       case HandoverStatus.pending:
-        return isDark ? AppColors.statusPendingDarkBg : AppColors.statusPendingBg;
+        return isDark
+            ? AppColors.statusPendingDarkBg
+            : AppColors.statusPendingBg;
       case HandoverStatus.overdue:
-        return isDark ? AppColors.statusOverdueDarkBg : AppColors.statusOverdueBg;
+        return isDark
+            ? AppColors.statusOverdueDarkBg
+            : AppColors.statusOverdueBg;
       case HandoverStatus.returned:
-        return isDark ? AppColors.statusReturnedDarkBg : AppColors.statusReturnedBg;
+        return isDark
+            ? AppColors.statusReturnedDarkBg
+            : AppColors.statusReturnedBg;
       case HandoverStatus.disputed:
-        return isDark ? AppColors.statusDisputedDarkBg : AppColors.statusDisputedBg;
+        return isDark
+            ? AppColors.statusDisputedDarkBg
+            : AppColors.statusDisputedBg;
       case HandoverStatus.cancelled:
       case HandoverStatus.expired:
         return isDark ? AppColors.statusMutedDarkBg : AppColors.statusMutedBg;
@@ -86,12 +96,15 @@ enum HandoverStatus {
   }
 
   /// Parses database status string into HandoverStatus enum, checking deadline for overdue
-  static HandoverStatus fromDbString(String? dbStatus, {DateTime? returnDueAt}) {
+  static HandoverStatus fromDbString(
+    String? dbStatus, {
+    DateTime? returnDueAt,
+  }) {
     if (dbStatus == null) return HandoverStatus.pending;
     final upper = dbStatus.toUpperCase().trim();
 
-    // Check if return deadline has passed for active items
-    if ((upper == 'RECEIVED' || upper == 'PENDING') &&
+    // Check if return deadline has passed for active received items
+    if (upper == 'RECEIVED' &&
         returnDueAt != null &&
         returnDueAt.isBefore(DateTime.now())) {
       return HandoverStatus.overdue;
@@ -150,5 +163,6 @@ enum HandoverStatus {
   }
 
   /// Whether this status represents a completed/closed lifecycle state
-  bool get isTerminal => this == HandoverStatus.returned || this == HandoverStatus.cancelled;
+  bool get isTerminal =>
+      this == HandoverStatus.returned || this == HandoverStatus.cancelled;
 }

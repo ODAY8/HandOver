@@ -1,5 +1,4 @@
-// lib/providers/handover_provider.dart
-
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/handover.dart';
@@ -26,7 +25,7 @@ class HandoverProvider extends ChangeNotifier {
   final _uuid = const Uuid();
 
   HandoverProvider({HandoverRepository? handoverRepository})
-      : _repository = handoverRepository ?? _createDefaultRepository() {
+    : _repository = handoverRepository ?? _createDefaultRepository() {
     if (handoverRepository == null) {
       _handovers.addAll(MockData.getInitialHandovers());
       _receivedHandovers.addAll(MockData.getReceivedByMeHandovers());
@@ -93,22 +92,35 @@ class HandoverProvider extends ChangeNotifier {
   }
 
   // Quick stats for Home screen
-  int get activeCount => _handovers.where((h) => h.status == HandoverStatus.received).length;
-  int get awaitingReceiptCount => _handovers.where((h) => h.status == HandoverStatus.pending).length;
-  int get overdueCount => _handovers.where((h) => h.status == HandoverStatus.overdue).length;
+  int get activeCount =>
+      _handovers.where((h) => h.status == HandoverStatus.received).length;
+  int get awaitingReceiptCount =>
+      _handovers.where((h) => h.status == HandoverStatus.pending).length;
+  int get overdueCount =>
+      _handovers.where((h) => h.status == HandoverStatus.overdue).length;
 
   List<Handover> get activeHandovers => _handovers
-      .where((h) => h.status == HandoverStatus.received || h.status == HandoverStatus.overdue)
+      .where(
+        (h) =>
+            h.status == HandoverStatus.received ||
+            h.status == HandoverStatus.overdue,
+      )
       .toList();
 
   List<Handover> get filteredHandovers {
-    final list = _currentTab == HandoverTab.sentByMe ? _handovers : _receivedHandovers;
+    final list = _currentTab == HandoverTab.sentByMe
+        ? _handovers
+        : _receivedHandovers;
     return list.where((item) {
       // Filter by chip
       final matchesFilter = switch (_currentFilter) {
-        'Active' => item.status == HandoverStatus.received || item.status == HandoverStatus.pending,
+        'Active' =>
+          item.status == HandoverStatus.received ||
+              item.status == HandoverStatus.pending,
         'Completed' => item.status == HandoverStatus.returned,
-        'Issues' => item.status == HandoverStatus.disputed || item.status == HandoverStatus.overdue,
+        'Issues' =>
+          item.status == HandoverStatus.disputed ||
+              item.status == HandoverStatus.overdue,
         _ => true,
       };
 
@@ -142,7 +154,9 @@ class HandoverProvider extends ChangeNotifier {
     try {
       return _handovers.firstWhere(
         (h) => h.token.toLowerCase() == token.toLowerCase(),
-        orElse: () => _receivedHandovers.firstWhere((h) => h.token.toLowerCase() == token.toLowerCase()),
+        orElse: () => _receivedHandovers.firstWhere(
+          (h) => h.token.toLowerCase() == token.toLowerCase(),
+        ),
       );
     } catch (_) {
       return null;
@@ -173,7 +187,8 @@ class HandoverProvider extends ChangeNotifier {
 
       for (final item in items) {
         final isOwner = item.ownerId != null && item.ownerId == userId;
-        final isRecipient = item.receiverEmail.toLowerCase().trim() == normEmail;
+        final isRecipient =
+            item.receiverEmail.toLowerCase().trim() == normEmail;
 
         if (isOwner) {
           _handovers.add(item);
@@ -205,7 +220,49 @@ class HandoverProvider extends ChangeNotifier {
         currentUserEmail: userEmail,
       );
       if (item != null) {
-        _updateLocalHandover(item);
+        _updateLocalHandover(
+          item,
+          currentUserId: userId,
+          currentUserEmail: userEmail,
+        );
+      }
+      return item;
+    } catch (e) {
+      _errorMessage = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
+  /// Generates a collision-resistant short token (e.g. HN-8K4P)
+  static String generateCollisionResistantToken() {
+    final rand = Random.secure();
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+    final suffix = List.generate(
+      4,
+      (_) => chars[rand.nextInt(chars.length)],
+    ).join();
+    return 'HN-$suffix';
+  }
+
+  /// Fetch single handover by reference token from repository
+  Future<Handover?> fetchHandoverByToken(
+    String token, {
+    required String userId,
+    required String userEmail,
+  }) async {
+    try {
+      final item = await _repository.fetchHandoverByToken(
+        token,
+        currentUserId: userId,
+        currentUserEmail: userEmail,
+      );
+      if (item != null) {
+        _updateLocalHandover(
+          item,
+          currentUserId: userId,
+          currentUserEmail: userEmail,
+        );
       }
       return item;
     } catch (e) {
@@ -218,6 +275,7 @@ class HandoverProvider extends ChangeNotifier {
   /// Create Handover record
   Future<Handover> createHandover({
     String? ownerId,
+    String? token,
     required String itemName,
     required String category,
     required String identifier,
@@ -238,15 +296,14 @@ class HandoverProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final nextNumber = 1048 + _handovers.length;
-      final token = 'HN-$nextNumber';
+      final resolvedToken = token ?? generateCollisionResistantToken();
       final fallbackId = 'hn_${_uuid.v4().substring(0, 8)}';
       final effectiveOwnerId = ownerId ?? fallbackId;
 
       final newHandover = Handover(
         id: fallbackId,
         ownerId: effectiveOwnerId,
-        token: token,
+        token: resolvedToken,
         itemName: itemName,
         category: category,
         identifier: identifier,
@@ -467,8 +524,7 @@ class HandoverProvider extends ChangeNotifier {
 
     final pId = userId ?? existing.ownerId ?? '';
     final pName = userName ?? existing.senderName;
-    final nextNumber = 1055 + _handovers.length;
-    final newToken = 'HN-$nextNumber';
+    final newToken = generateCollisionResistantToken();
 
     _isSubmitting = true;
     _errorMessage = null;
@@ -536,7 +592,11 @@ class HandoverProvider extends ChangeNotifier {
     }
   }
 
-  void _updateLocalHandover(Handover item) {
+  void _updateLocalHandover(
+    Handover item, {
+    String? currentUserId,
+    String? currentUserEmail,
+  }) {
     final sIdx = _handovers.indexWhere((h) => h.id == item.id);
     if (sIdx != -1) {
       _handovers[sIdx] = item;
@@ -545,6 +605,18 @@ class HandoverProvider extends ChangeNotifier {
     final rIdx = _receivedHandovers.indexWhere((h) => h.id == item.id);
     if (rIdx != -1) {
       _receivedHandovers[rIdx] = item;
+    }
+
+    if (sIdx == -1 && rIdx == -1) {
+      final normEmail = (currentUserEmail ?? '').toLowerCase().trim();
+      final isRecipient =
+          normEmail.isNotEmpty &&
+          item.receiverEmail.toLowerCase().trim() == normEmail;
+      if (isRecipient) {
+        _receivedHandovers.insert(0, item);
+      } else {
+        _handovers.insert(0, item);
+      }
     }
 
     notifyListeners();
